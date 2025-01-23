@@ -31,3 +31,5 @@ MVPリリースまでに実装しておきたい機能：埋め込みURLによ�
 IFrame Player APIやYouTube Data APIを使用して動画の埋め込みとjavascript操作による動画コントロールを行う。 CRUD機能を利用しユーザー情報を登録し、編集した動画をアカウントに紐づける。 Ransackによる検索機能の追加や、スクレイピングによる関連切り抜き動画登録機能等を実装予定。。
 
 Figma：https://www.figma.com/design/f6QM52rq6915o5ND6WIvci/Figma-basics?node-id=602-9&t=W6rWTmQk70ZnrtDI-1
+
+ER図：https://drive.google.com/file/d/1j9_DowfEDdVgyJ58wUtRwZMYkVrDOyjn/view?usp=sharing
