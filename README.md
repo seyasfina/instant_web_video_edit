@@ -33,3 +33,4 @@ IFrame Player APIやYouTube Data APIを使用して動画の埋め込みとjavas
 Figma：https://www.figma.com/design/f6QM52rq6915o5ND6WIvci/Figma-basics?node-id=602-9&t=W6rWTmQk70ZnrtDI-1
 
 ER図：https://drive.google.com/file/d/1NNl6HARXhTCYeeYWwzdTaAaI5e-Mv7g-/view?usp=drive_link
+
