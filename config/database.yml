@@ -8,11 +8,11 @@ default: &default
 
 development:
   <<: *default
-  database: my_rails_app_development
+  database: instant_web_video_edit
 
 test:
   <<: *default
-  database: my_rails_app_test
+  database: instant_web_video_edit
 
 production:
   <<: *default
