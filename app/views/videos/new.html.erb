@@ -1,0 +1,12 @@
+<h1>現在の対応動画プラットフォームはYoutubeのみとなっています</h1>
+
+<%= form_with(model: @video, local: true) do |form| %>
+  <div>
+    <%= form.label :url, "動画のURL" %><br>
+    <%= form.text_field :url, placeholder: "動画URLを入力してください" %>
+  </div>
+
+  <div>
+    <%= form.submit "動画を編集する" %>
+  </div>
+<% end %>
