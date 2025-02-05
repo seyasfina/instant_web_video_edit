@@ -6,12 +6,12 @@ class Video < ApplicationRecord
   def embed_url
     if url.include?("youtube.com/watch?v=")
       video_id = url.split("v=").last.split("&").first
-      "https://www.youtube.com/embed/#{video_id}"
+      "https://www.youtube.com/embed/#{video_id}?enablejsapi=1"
     elsif url.include?("youtu.be/")
       video_id = url.split("/").last
-      "https://www.youtube.com/embed/#{video_id}"
+      "https://www.youtube.com/embed/#{video_id}?enablejsapi=1"
     else
       url
     end
-  end
+  end  
 end
