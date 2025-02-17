@@ -19,7 +19,7 @@ class VideosController < ApplicationController
 
   def show
     @video = Video.find(params[:id])
-    @clips = @video.clips
+    @clips = @video.clips.where(user: current_user).includes(:user)
   end
 
   private
