@@ -1,5 +1,5 @@
 class ClipsController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, only: [:update, :destroy]
   before_action :set_video
   before_action :set_clip, only: [:update, :destroy]
 
