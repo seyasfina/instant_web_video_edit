@@ -4,8 +4,8 @@
   <title>Instant Web Video Edit</title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 
-  <%= stylesheet_link_tag 'application', media: 'all' %>
   <%= javascript_importmap_tags %>
 </head>
 
@@ -16,6 +16,7 @@
     </div>
     <div>
       <% if user_signed_in? %>
+        <%= link_to 'マイページ', user_path(current_user) %> |
         <%= link_to 'ログアウト', destroy_user_session_path, method: :delete %>
       <% else %>
         <%= link_to 'サインアップ', new_user_registration_path %> |
