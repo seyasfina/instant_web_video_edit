@@ -73,7 +73,10 @@ document.addEventListener("DOMContentLoaded", () => {
       addClipToUI(data);
       resetForm();
     })
-    .catch(error => console.error("❌ クリップ作成エラー:", error));
+    .catch(error => {
+      console.error("❌ クリップ作成エラー:", error);
+      clipForm.querySelector("input[type='submit']").disabled = false;
+    });
   }
 
   function addClipToUI(data) {
