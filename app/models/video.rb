@@ -3,6 +3,7 @@ class Video < ApplicationRecord
 
   validates :url, presence: true, uniqueness: true, format: { with: /\Ahttps:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+/, message: "は有効なYouTubeのURLを入力してください" }
 
+
   def embed_url
     if url.include?("youtube.com/watch?v=")
       video_id = url.split("v=").last.split("&").first
@@ -13,5 +14,5 @@ class Video < ApplicationRecord
     else
       url
     end
-  end  
+  end
 end
