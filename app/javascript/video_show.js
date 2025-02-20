@@ -66,16 +66,31 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(response => {
       //console.log("📡 サーバーレスポンス:", response);
-      if (!response.ok) throw new Error(`HTTPエラー！ステータス: ${response.status}`);
+      if (!response.ok) {
+        return response.json().then(errData => {
+          displayErrors(errData.errors);
+          throw new Error(`HTTPエラー！ステータス: ${response.status}`);
+        });
+      }
       return response.json();
     })
     .then(data => {
+      document.getElementById("clip-errors").innerHTML = "";
       addClipToUI(data);
       resetForm();
     })
     .catch(error => {
-      console.error("❌ クリップ作成エラー:", error);
+      //console.error("❌ クリップ作成エラー:", error);
       clipForm.querySelector("input[type='submit']").disabled = false;
+    });
+  }
+
+  // エラー表示用の関数
+  function displayErrors(errors) {
+    const errorDiv = document.getElementById("clip-errors");
+    errorDiv.innerHTML = "";
+    errors.forEach(message => {
+      errorDiv.innerHTML += `<p>${message}</p>`;
     });
   }
 

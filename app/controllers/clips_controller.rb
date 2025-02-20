@@ -16,7 +16,7 @@ class ClipsController < ApplicationController
 
   def update
     if @clip.update(clip_params)
-      render json: @clip
+      render json: @clip, status: :ok
     else
       render json: @clip.errors, status: :unprocessable_entity
     end
