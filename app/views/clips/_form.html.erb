@@ -6,10 +6,10 @@
     <div id="clip-errors"></div>
   
     <%= f.label :start_time, "開始時間 (秒)" %>
-    <%= f.text_field :start_time, id: "clip_start_time" %>
+    <%= f.text_field :start_time, id: "clip_start_time", required: true, type: "number", step: "any" %>
   
     <%= f.label :end_time, "終了時間 (秒)" %>
-    <%= f.text_field :end_time, id: "clip_end_time" %>
+    <%= f.text_field :end_time, id: "clip_end_time", required: true, type: "number", step: "any" %>
   
     <%= f.submit "クリップを保存" %>
   <% end %>
