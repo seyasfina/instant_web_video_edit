@@ -5,9 +5,9 @@
 one:
   name: "User One"
   email: "user1@example.com"
-  password_digest: <%= BCrypt::Password.create('password') %>
+  encrypted_password: <%= BCrypt::Password.create('password') %>
 
 two:
   name: "User Two"
   email: "user2@example.com"
-  password_digest: <%= BCrypt::Password.create('password') %>
+  encrypted_password: <%= BCrypt::Password.create('password') %>
