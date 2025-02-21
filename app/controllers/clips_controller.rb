@@ -1,12 +1,12 @@
 class ClipsController < ApplicationController
-  before_action :authenticate_user!, only: [:update, :destroy]
+  before_action :authenticate_user!, only: [ :update, :destroy ]
   before_action :set_video
-  before_action :set_clip, only: [:update, :destroy]
+  before_action :set_clip, only: [ :update, :destroy ]
 
   def create
     @clip = @video.clips.new(clip_params)
     @clip.user = current_user
-  
+
     if @clip.save
       render json: @clip, status: :created
     else
@@ -31,7 +31,7 @@ class ClipsController < ApplicationController
 
   def set_video
     @video = Video.find(params[:video_id])
-  end  
+  end
 
   def set_clip
     @clip = @video.clips.find(params[:id])
