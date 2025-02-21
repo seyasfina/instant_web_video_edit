@@ -3,7 +3,7 @@ class Video < ApplicationRecord
 
   before_validation :set_video_id
 
-  validates :url, presence: true, uniqueness: true, format: { with: /\Ahttps:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+/, message: "は有効なYouTubeのURLを入力してください" }
+  validates :url, presence: true, uniqueness: true, format: { with: /\Ahttps:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+\z/, message: "は有効なYouTubeのURLを入力してください" }
   validates :video_id, presence: true, uniqueness: true
 
   def set_video_id
