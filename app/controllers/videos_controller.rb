@@ -4,7 +4,10 @@ class VideosController < ApplicationController
   end
 
   def create
-    existing_video = Video.find_by(url: video_params[:url])
+    temp_video = Video.new(video_params)
+    submitted_video_id = temp_video.extract_video_id
+
+    existing_video = Video.find_by(video_id: submitted_video_id)
     if existing_video
       redirect_to video_path(existing_video)
     else
