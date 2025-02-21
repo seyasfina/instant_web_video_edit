@@ -1,18 +1,33 @@
 require "test_helper"
 
 class ClipsControllerTest < ActionDispatch::IntegrationTest
-  test "should get create" do
-    get clips_url(@clip)
-    assert_response :success
+  setup do
+    @clip = clips(:one)
+    @video = @clip.video
   end
 
-  test "should get update" do
-    get clips_url(@clip)
-    assert_response :success
+  test "should create clip" do
+    post video_clips_url(@video), params: { clip: { 
+      user_id: users(:one).id, 
+      video_id: @video.id, 
+      start_time: 1.5, 
+      end_time: 1.5 
+    } }
+    assert_response :redirect
   end
 
-  test "should get destroy" do
-    get clips_url(@clip)
-    assert_response :success
+  test "should update clip" do
+    patch video_clip_url(@video, @clip), params: { clip: {
+      user_id: users(:one).id, 
+      video_id: @video.id, 
+      start_time: 2.0, 
+      end_time: 2.5 
+    } }
+    assert_response :redirect
+  end
+
+  test "should destroy clip" do
+    delete video_clip_url(@video, @clip)
+    assert_response :redirect
   end
 end
