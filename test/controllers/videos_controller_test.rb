@@ -1,8 +1,12 @@
 require "test_helper"
 
 class VideosControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @video = videos(:one)
+  end
+
   test "should get show" do
-    get videos_url(@video)
+    get video_url(@video)
     assert_response :success
   end
 end
