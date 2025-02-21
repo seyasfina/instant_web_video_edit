@@ -7,7 +7,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     @user = users(:one)
     sign_in @user
   end
-  
+
   test "should get show" do
     get user_url(@user)
     assert_response :success
