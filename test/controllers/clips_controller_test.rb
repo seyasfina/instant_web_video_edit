@@ -2,17 +2,17 @@ require "test_helper"
 
 class ClipsControllerTest < ActionDispatch::IntegrationTest
   test "should get create" do
-    get clips_create_url
+    get clips_url(@clip)
     assert_response :success
   end
 
   test "should get update" do
-    get clips_update_url
+    get clips_url(@clip)
     assert_response :success
   end
 
   test "should get destroy" do
-    get clips_destroy_url
+    get clips_url(@clip)
     assert_response :success
   end
 end
