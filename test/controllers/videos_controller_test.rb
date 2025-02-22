@@ -6,7 +6,7 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
   setup do
     @video = videos(:one)
     @user = users(:one)
-    sign_in @user 
+    sign_in @user
   end
 
   test "should get new" do
@@ -16,7 +16,7 @@ class VideosControllerTest < ActionDispatch::IntegrationTest
 
   test "should create video if not exists" do
     video_params = { url: "https://www.youtube.com/watch?v=new123" }
-    assert_difference('Video.count', 1) do
+    assert_difference("Video.count", 1) do
       post videos_url, params: { video: video_params }
     end
     assert_response :redirect
