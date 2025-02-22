@@ -1,0 +1,12 @@
+<div>
+  <div>
+    <div>
+      <iframe id="player" src="<%= @video.embed_url %>" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
+  <div>
+    <%= render 'clips/sidebar', video: @video, clips: @clips %>
+  </div>
+</div>
+
+<%= javascript_include_tag 'video_show', type: 'module', defer: true %>
