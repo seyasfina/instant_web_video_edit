@@ -158,6 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //console.log("🎯 e.target.dataset.start の値:", e.target.dataset.start);
     //console.log("🔍 e.target.dataset.start の型:", typeof e.target.dataset.start);
 
+    //ブラウザの自動再生ポリシーにより、ユーザーが最初に動画プレイヤーをクリックする必要がある
     ytPlayer.seekTo(start, true);
     ytPlayer.playVideo();
 
