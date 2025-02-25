@@ -2,7 +2,7 @@
   <%= render 'clips/form', video: @video %>
   <div>
     <ul id="clip-list">
-      <% @clips.each do |clip| %>
+      <% clips.each do |clip| %>
         <li data-clip-id="<%= clip.id %>" >
           <span>(開始: <%= clip.start_time %> 秒, 終了: <%= clip.end_time %> 秒)</span>
           <div>
