@@ -4,8 +4,9 @@
       <iframe id="player" src="<%= @video.embed_url %>" frameborder="0" allowfullscreen></iframe>
     </div>
   </div>
+  <p>ブラウザの自動再生のポリシーによって動画が再生されない可能性があるため、動画プレイヤーをクリックして再生してください</p>
   <div>
-    <%= render 'clips/sidebar', video: @video, clips: @clips %>
+    <%= render 'clips/sidebar', clips: @clips %>
   </div>
 </div>
 

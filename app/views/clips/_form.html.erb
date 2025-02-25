@@ -2,7 +2,7 @@
   <button id="set-start-time" type="button">開始時間</button>
   <button id="set-end-time" type="button">終了時間</button>
 
-  <%= form_with(model: [@video, Clip.new], url: video_clips_path(@video), id: "clip-form", remote: true, data: { video_id: @video.id }) do |f| %>
+  <%= form_with(model: [video, Clip.new], url: video_clips_path(video), id: "clip-form", remote: true, data: { video_id: video.id }) do |f| %>
     <div id="clip-errors"></div>
   
     <%= f.label :start_time, "開始時間 (秒)" %>

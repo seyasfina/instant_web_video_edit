@@ -1,0 +1,14 @@
+<header style="display: flex; justify-content: space-between; padding: 10px; background: #f8f9fa;">
+    <div>
+      <%= link_to 'IWeVE', root_path, style: 'font-weight: bold;' %>
+    </div>
+    <div>
+      <% if user_signed_in? %>
+        <%= link_to 'マイページ', user_path(current_user) %> |
+        <%= link_to 'ログアウト', destroy_user_session_path, method: :delete %>
+      <% else %>
+        <%= link_to 'サインアップ', new_user_registration_path %> |
+        <%= link_to 'サインイン', new_user_session_path %>
+      <% end %>
+    </div>
+  </header>
