@@ -1,4 +1,7 @@
 class VideosController < ApplicationController
+  before_action :set_video, only: [ :show ]
+  before_action :set_clips, only: [ :show ]
+
   def new
     @video = Video.new
   end
@@ -21,13 +24,22 @@ class VideosController < ApplicationController
   end
 
   def show
-    @video = Video.find(params[:id])
-    @clips = @video.clips.where(user: current_user).includes(:user)
   end
 
   private
 
   def video_params
     params.require(:video).permit(:url)
+  end
+
+  def set_video
+    @video = Video.find_by(id: params[:id])
+    unless @video
+      redirect_to root_path, alert: "動画が見つかりません"
+    end
+  end
+
+  def set_clips
+    @clips = @video.clips.where(user: current_user).includes(:user)
   end
 end
