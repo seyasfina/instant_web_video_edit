@@ -35,14 +35,33 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("set-start-time")?.addEventListener("click", () => {
       const startTime = ytPlayer.getCurrentTime();
       //console.log("✅ set-start-time:", startTime);
+      const startTimeToHms = secondsToHms(startTime);
       document.getElementById("clip_start_time").value = startTime.toFixed(2);
     });
 
     document.getElementById("set-end-time")?.addEventListener("click", () => {
       const endTime = ytPlayer.getCurrentTime();
       //console.log("✅ set-end-time:", endTime);
+      const endTimeToHms = secondsToHms(endTime);
       document.getElementById("clip_end_time").value = endTime.toFixed(2);
     });
+  }
+
+  function secondsToHms(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor(seconds % 3600 / 60);
+    const s = seconds % 3600 % 60;
+    s = s.toFixed(2);
+    if (h == 0) {
+      return `${m}:${s}`;
+    } 
+    if (m < 10) {
+      return `${h}:0${m}:${s}`;
+    }
+    if (s < 10) {
+      return `${h}:${m}:0${s}`;
+    }
+    return `${h}:${m}:${s}`;
   }
 
   // ✅ クリップの保存
