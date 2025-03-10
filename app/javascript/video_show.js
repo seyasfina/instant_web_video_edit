@@ -48,22 +48,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function secondsToHms(seconds) {
+    seconds = parseFloat(seconds);
+    
     const h = Math.floor(seconds / 3600);
-    const m = Math.floor(seconds % 3600 / 60);
-    const s = seconds % 3600 % 60;
-    s = s.toFixed(2);
-    if (h == 0) {
-      return `${m}:${s}`;
-    } 
-    if (m < 10) {
-      return `${h}:0${m}:${s}`;
-    }
-    if (s < 10) {
-      return `${h}:${m}:0${s}`;
-    }
-    return `${h}:${m}:${s}`;
-  }
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    
 
+    const hStr = h.toString().padStart(2, '0');
+    const mStr = m.toString().padStart(2, '0');
+    const sStr = s.toFixed(2).padStart(5, '0');
+    
+    if (h === 0) {
+      return `${mStr}:${sStr}`;
+    }
+    return `${hStr}:${mStr}:${sStr}`;
+  }
+  
   // ✅ クリップの保存
   function handleFormSubmit(event) {
     event.preventDefault();
@@ -119,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const newClip = document.createElement("li");
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
-      <span>(開始: ${data.start_time.toFixed(2)} 秒, 終了: ${data.end_time.toFixed(2)} 秒)</span>
+      <span>(開始: ${secondsToHms(data.start_time)} 秒, 終了: ${secondsToHms(data.end_time)} 秒)</span>
       <div>
         <button class="play-clip" data-start="${data.start_time}" data-end="${data.end_time}">再生</button>
         <button class="delete-clip">削除</button>
