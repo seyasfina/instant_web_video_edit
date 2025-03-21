@@ -22,7 +22,7 @@ class Clip < ApplicationRecord
 
   def starttime_must_be_before_endtime
     if start_time > end_time
-      errors.add(:start_time, "は endtime より前に設定してください。")
+      errors.add(:base, "開始時間は終了時間より前に設定してください。")
     end
   end
 end
