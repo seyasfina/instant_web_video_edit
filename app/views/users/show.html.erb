@@ -1,4 +1,6 @@
-<h1>ユーザー情報</h1>
-
+<h1>アカウント情報</h1>
+<p>ユーザー名: <%= @user.name %></p>
 <p>メールアドレス: <%= @user.email %></p>
 <p>パスワード: ******</p>
+<br/ >
+<%= link_to "アカウント情報の編集", edit_user_registration_path %>
