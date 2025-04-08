@@ -1,6 +1,23 @@
-<h1>アカウント情報</h1>
-<p>ユーザー名: <%= @user.name %></p>
-<p>メールアドレス: <%= @user.email %></p>
-<p>パスワード: ******</p>
-<br/ >
-<%= link_to "アカウント情報の編集", edit_user_registration_path %>
+<div>
+  <h1>アカウント情報</h1>
+  <p>ユーザー名: <%= @user.name %></p>
+  <p>メールアドレス: <%= @user.email %></p>
+  <p>パスワード: ******</p>
+  <br/ >
+  <%= link_to "アカウント情報の編集", edit_user_registration_path %>
+</div>
+<div>
+  <h1>視聴履歴</h1>
+  <% @video_histories.each do |video_history| %>
+    <div>
+      <p>動画のURL: <%= link_to video_history.video.url, video_path(video_history.video), target: "_blank" %></p>
+    </div>
+  <% end %>
+</div>
+<div>
+  <h1>お気に入り動画</h1>
+  <% @video_favorites.each do |video_favorite| %>
+    <div>
+      <p>動画のURL: <%= link_to video_favorite.url, video_path(video_favorite.video), target: "_blank" %></p>
+    </div>
+  <% end %>

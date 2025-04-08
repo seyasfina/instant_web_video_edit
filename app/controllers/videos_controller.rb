@@ -24,6 +24,11 @@ class VideosController < ApplicationController
   end
 
   def show
+    if user_signed_in?
+      history = current_user.video_histories.find_or_initialize_by(video_id: @video.id)
+      history.last_played_at = Time.current
+      history.save
+    end
   end
 
   private
