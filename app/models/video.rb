@@ -1,5 +1,9 @@
 class Video < ApplicationRecord
   has_many :clips, dependent: :destroy
+  has_many :video_histories, dependent: :destroy
+  has_many :users_who_watched, through: :video_histories, source: :user
+  has_many :video_favorites, dependent: :destroy
+  has_many :users_who_favorited, through: :video_favorites, source: :user
 
   before_validation :set_video_id
 
