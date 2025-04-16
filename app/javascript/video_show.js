@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const clipForm = document.getElementById("clip-form");
   const clipList = document.getElementById("clip-list");
   const videoId = clipForm.dataset.videoId;
+  const favoriteButton = document.getElementById("favorite-toggle");
 
   if (!window.YT?.Player) {
     const tag = document.createElement("script");
@@ -178,6 +179,52 @@ document.addEventListener("DOMContentLoaded", () => {
     */
   }
 
+  function toggleFavoriteButton() {
+    if (favoriteButton.classList.contains("favorited")) {
+      unfavoriteVideo(videoId);
+    } else {
+      favoriteVideo(videoId);
+    }
+  }
+
+  function favoriteVideo(videoId) {
+    fetch(`/videos/${videoId}/video_favorite`, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": getCsrfToken(),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ video_id: videoId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.id) {
+        favoriteButton.textContent = "お気に入り解除";
+        favoriteButton.classList.add("favorited");
+        }
+      })
+    .catch(error => console.error("エラー:", error));
+  }
+
+  function unfavoriteVideo(videoId) {
+    fetch(`/videos/${videoId}/video_favorite`, {
+      method: "DELETE",
+      headers: {
+        "X-CSRF-Token": getCsrfToken(),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ video_id: videoId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message) {
+        favoriteButton.textContent = "お気に入り登録";
+        favoriteButton.classList.remove("favorited");
+      }
+    })
+    .catch(error => console.error("エラー:", error));
+  }
+
   function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content || "";
   }
@@ -185,4 +232,5 @@ document.addEventListener("DOMContentLoaded", () => {
   clipForm?.addEventListener("submit", handleFormSubmit);
   clipList?.addEventListener("click", handleClipDelete);
   clipList?.addEventListener("click", handleClipPlay);
+  favoriteButton?.addEventListener("click", toggleFavoriteButton);
 });
