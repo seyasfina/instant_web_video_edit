@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :users, only: [ :show ]
   resources :videos, only: [ :new, :create, :show ] do
     resources :clips, only: [ :create, :update, :destroy ], defaults: { format: :json }
+    resource :video_favorite, only: [ :create, :destroy ], defaults: { format: :json }
   end
 
   get '/404', to: 'errors#not_found'
