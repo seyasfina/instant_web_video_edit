@@ -10,6 +10,8 @@ class Video < ApplicationRecord
   validates :url, presence: true, uniqueness: true, format: { with: /\Ahttps:\/\/(www\.)?(youtube\.com|youtu\.be)\/.+\z/, message: "は有効なYouTubeのURLを入力してください" }
   validates :video_id, presence: true, uniqueness: true
 
+  after_create_commit :enqueue_metadata_fetch_job
+
   def set_video_id
     self.video_id = extract_video_id if url.present?
   end
@@ -26,5 +28,11 @@ class Video < ApplicationRecord
 
   def embed_url
     "https://www.youtube.com/embed/#{video_id}?enablejsapi=1" if video_id
+  end
+
+  private
+
+  def enqueue_metadata_fetch_job
+    FetchYoutubeMetadataJob.perform_later(id)
   end
 end
