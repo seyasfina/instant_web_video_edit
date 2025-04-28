@@ -10,7 +10,7 @@
   <h1>視聴履歴</h1>
   <% @video_histories.each do |video_history| %>
     <div>
-      <p>動画ID: <%= link_to video_history.video.video_id, video_path(video_history.video), id: "video-history", data: { video_id: video_history.video.id }, target: "_blank" %></p>
+      <p><%= link_to video_history.video.title, video_path(video_history.video), id: "video-history-#{video_history.video.id}", data: { video_id: video_history.video.id }, target: "_blank" %><%= image_tag video_history.video.thumbnail_url %></p>
     </div>
   <% end %>
 </div>
@@ -18,6 +18,6 @@
   <h1>お気に入り動画</h1>
   <% @video_favorites.each do |video_favorite| %>
     <div>
-      <p>動画ID: <%= link_to video_favorite.video.video_id, video_path(video_favorite.video), id: "video-favorite", data: { video_id: video_favorite.video.id }, target: "_blank" %></p>
+      <p><%= link_to video_favorite.video.title, video_path(video_favorite.video), id: "video-favorite-#{video_favorite.video.id}", data: { video_id: video_favorite.video.id }, target: "_blank" %><%= image_tag video_favorite.video.thumbnail_url %></p>
     </div>
   <% end %>
