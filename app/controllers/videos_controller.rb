@@ -23,11 +23,23 @@ class VideosController < ApplicationController
     end
   end
 
+  def index
+    @q = Video.ransack(params[:q])
+    @videos = @q.result(distinct: true)
+  end
+
   def show
     if user_signed_in?
       history = current_user.video_histories.find_or_initialize_by(video_id: @video.id)
       history.last_played_at = Time.current
       history.save
+    end
+  end
+
+  def autocomplete
+    @videos = Video.where("title LIKE ?", "%#{params[:q]}%").limit(10)
+    respond_to do |format|
+      format.js
     end
   end
 

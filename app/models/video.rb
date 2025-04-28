@@ -30,6 +30,10 @@ class Video < ApplicationRecord
     "https://www.youtube.com/embed/#{video_id}?enablejsapi=1" if video_id
   end
 
+  def self.ransackable_attributes(auth_object = nil)
+    ["title"]
+  end
+
   private
 
   def enqueue_metadata_fetch_job

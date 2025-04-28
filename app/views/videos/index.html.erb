@@ -1,0 +1,5 @@
+<ul>
+  <% @videos.each do |video| %>
+    <li><%= link_to video.title, video_path(video) %><%= image_tag video.thumbnail_url %></li>
+  <% end %>
+</ul>

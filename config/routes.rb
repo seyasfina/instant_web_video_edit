@@ -4,7 +4,10 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :users, only: [ :show ]
-  resources :videos, only: [ :new, :create, :show ] do
+  resources :videos, only: [ :new, :create, :index, :show ] do
+    collection do
+      get :autocomplete
+    end
     resources :clips, only: [ :create, :update, :destroy ], defaults: { format: :json }
     resource :video_favorite, only: [ :create, :destroy ], defaults: { format: :json }
   end

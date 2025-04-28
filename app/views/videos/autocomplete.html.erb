@@ -1,0 +1,5 @@
+<% @videos.each do |video| %>
+  <li class="list-group-item" role="option" data-autocomplete-value="<%= video.id %>" data-autocomplete-label="<%= h(video.title) %>">
+    <%= h(video.title) %>
+  </li>
+<% end %>
