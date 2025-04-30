@@ -13,28 +13,6 @@
     <%= f.email_field :email, autocomplete: "email" %>
   </div>
 
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
-  <% end %>
-
-  <div class="field">
-    <%= f.label :password, "新しいパスワード" %>
-    <% if @minimum_password_length %>
-      <em>(<%= @minimum_password_length %>文字以上入力してください)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation, "新しいパスワード (再入力)" %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :current_password, "現在のパスワード" %> <i>(変更するには現在のパスワードが必要です)</i><br />
-    <%= f.password_field :current_password, autocomplete: "current-password" %>
-  </div>
-
   <div class="actions">
     <%= f.submit "変更を保存" %>
   </div>
