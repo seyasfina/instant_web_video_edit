@@ -23,4 +23,8 @@
   </div>
 <% end %>
 
+<%- if devise_mapping.omniauthable? %>
+  <%= button_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path %>
+  <% end %>
+
 <%#= render "devise/shared/links" %>
