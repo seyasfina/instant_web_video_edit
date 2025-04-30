@@ -31,7 +31,7 @@ class Video < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["title"]
+    [ "title" ]
   end
 
   private

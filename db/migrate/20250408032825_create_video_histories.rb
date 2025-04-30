@@ -7,6 +7,6 @@ class CreateVideoHistories < ActiveRecord::Migration[7.2]
 
       t.timestamps
     end
-    add_index :video_histories, [:user_id, :video_id], unique: true
+    add_index :video_histories, [ :user_id, :video_id ], unique: true
   end
 end

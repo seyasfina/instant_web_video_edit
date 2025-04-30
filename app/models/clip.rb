@@ -10,13 +10,13 @@ class Clip < ApplicationRecord
     h = (seconds / 3600).floor
     m = ((seconds % 3600) / 60).floor
     s = seconds % 60
-    
+
     if h == 0
       format("%02d:%05.2f", m, s)
     else
       format("%02d:%02d:%05.2f", h, m, s)
     end
-  end  
+  end
 
   private
 
