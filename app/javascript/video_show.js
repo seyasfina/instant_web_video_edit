@@ -1,27 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-  //console.log("🔄 ページがロードされました");
 
   let ytPlayer;
   const clipForm = document.getElementById("clip-form");
   const clipList = document.getElementById("clip-list");
-  const videoId = clipForm?.dataset.videoId;
+  const videoId = clipForm.dataset.videoId;
+  const favoriteButton = document.getElementById("favorite-toggle");
 
-  //console.log("✅ clipForm:", clipForm);
-  //console.log("✅ videoId:", videoId);
-  //console.log("✅ clipList:", clipList);
-
-  // ✅ YouTube API のロード確認・リセット
-  if (!window.YT || !window.YT.Player) {
-    //console.log("⏳ YouTube API をロードします...");
+  if (!window.YT?.Player) {
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
-  } else {
-    //console.log("✅ YouTube API は既にロード済み");
   }
 
   window.onYouTubeIframeAPIReady = function () {
-    //console.log("✅ YouTube API Ready");
     ytPlayer = new YT.Player("player", {
       events: {
         "onReady": onPlayerReady
@@ -30,32 +21,64 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function onPlayerReady() {
-    //console.log("✅ YouTube Player Ready:", ytPlayer);
-
     document.getElementById("set-start-time")?.addEventListener("click", () => {
       const startTime = ytPlayer.getCurrentTime();
-      //console.log("✅ set-start-time:", startTime);
-      document.getElementById("clip_start_time").value = startTime.toFixed(2);
+      const startTimeToHms = secondsToHms(startTime);
+      document.getElementById("clip_start_time").value = startTimeToHms;
     });
 
     document.getElementById("set-end-time")?.addEventListener("click", () => {
       const endTime = ytPlayer.getCurrentTime();
-      //console.log("✅ set-end-time:", endTime);
-      document.getElementById("clip_end_time").value = endTime.toFixed(2);
+      const endTimeToHms = secondsToHms(endTime);
+      document.getElementById("clip_end_time").value = endTimeToHms;
     });
   }
 
-  // ✅ クリップの保存
+  function secondsToHms(seconds) {
+    seconds = parseFloat(seconds);
+   
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+
+    const hStr = h.toString().padStart(2, '0');
+    const mStr = m.toString().padStart(2, '0');
+    const sStr = s.toFixed(2).padStart(5, '0');
+
+    if (h === 0) {
+      return `${mStr}:${sStr}`;
+    }
+    return `${hStr}:${mStr}:${sStr}`;
+  }
+
+  function hmsToSeconds(hms) {
+    const parts = hms.split(":").map(parseFloat);
+    let seconds = 0;
+  
+    if (parts.length === 3) {
+      const [h, m, s] = parts;
+      seconds = h * 3600 + m * 60 + s;
+    } else if (parts.length === 2) {
+      const [m, s] = parts;
+      seconds = m * 60 + s;
+    }
+    
+    return seconds;
+  }
+
   function handleFormSubmit(event) {
     event.preventDefault();
-    //console.log("📡 フォーム送信イベント発生:", clipForm.action);
-
-    let formData = new FormData(clipForm);
+    const startTimeValue = clipForm.elements["clip[start_time]"].value;
+    const endTimeValue = clipForm.elements["clip[end_time]"].value;
+    const startTimeToSeconds = hmsToSeconds(startTimeValue);
+    const endTimeToSeconds = hmsToSeconds(endTimeValue);
+    let formData = new FormData();
+    formData.set("clip[start_time]", startTimeToSeconds);
+    formData.set("clip[end_time]", endTimeToSeconds);
     saveClip(formData);
   }
 
   function saveClip(formData) {
-    //console.log("📡 `fetch()` を実行");
     fetch(clipForm.action, {
       method: "POST",
       body: formData,
@@ -65,7 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })
     .then(response => {
-      //console.log("📡 サーバーレスポンス:", response);
       if (!response.ok) {
         return response.json().then(errData => {
           displayErrors(errData.errors);
@@ -80,12 +102,10 @@ document.addEventListener("DOMContentLoaded", () => {
       resetForm();
     })
     .catch(error => {
-      //console.error("❌ クリップ作成エラー:", error);
       clipForm.querySelector("input[type='submit']").disabled = false;
     });
   }
 
-  // エラー表示用の関数
   function displayErrors(errors) {
     const errorDiv = document.getElementById("clip-errors");
     errorDiv.innerHTML = "";
@@ -95,39 +115,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addClipToUI(data) {
-    //console.log("✅ Clip created:", data);
-
     const newClip = document.createElement("li");
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
-      <span>(開始: ${data.start_time.toFixed(2)} 秒, 終了: ${data.end_time.toFixed(2)} 秒)</span>
+      <span>(開始: ${secondsToHms(data.start_time)} 秒, 終了: ${secondsToHms(data.end_time)} 秒)</span>
       <div>
         <button class="play-clip" data-start="${data.start_time}" data-end="${data.end_time}">再生</button>
         <button class="delete-clip">削除</button>
       </div>
     `;
-
     clipList?.appendChild(newClip);
   }
 
   function resetForm() {
     clipForm.reset();
-    //console.log("📄 フォームをリセットしました");
-  
-    // ✅ `submit` ボタンを有効化
     //Rails UJS による submit ボタンの無効化を解除
     clipForm.querySelector("input[type='submit']").disabled = false;
-    //console.log("✅ `submit` ボタンを有効化");
   }  
 
-  // ✅ クリップの削除
   function handleClipDelete(e) {
     //特定の要素をクリックした場合のみ処理を実行
     if (!e.target.classList.contains("delete-clip")) return;
 
     const clipElement = e.target.closest("li");
     const clipId = clipElement.dataset.clipId;
-    //console.log(`🗑 Deleting clip: ${clipId}`);
 
     deleteClip(clipId, clipElement);
   }
@@ -143,26 +154,20 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(response => {
       if (!response.ok) throw new Error(`HTTPエラー！ステータス: ${response.status}`);
       clipElement.remove();
-      //console.log(`✅ Clip ${clipId} deleted`);
     })
     .catch(error => console.error("❌ クリップ削除エラー:", error));
   }
 
-  // ✅ クリップの再生
   function handleClipPlay(e) {
     if (!e.target.classList.contains("play-clip")) return;
 
     const start = parseFloat(e.target.dataset.start);
     const end = parseFloat(e.target.dataset.end);
-    //console.log(`▶️ Playing clip from ${start} to ${end}`);
-    //console.log("🎯 e.target.dataset.start の値:", e.target.dataset.start);
-    //console.log("🔍 e.target.dataset.start の型:", typeof e.target.dataset.start);
-
     //ブラウザの自動再生ポリシーにより、ユーザーが最初に動画プレイヤーをクリックする必要がある
     ytPlayer.seekTo(start, true);
     ytPlayer.playVideo();
 
-    // ⏹ クリップ再生終了時の処理、選択できるようになった際に有効化
+    //クリップ再生終了時の処理、選択できるようになった際に有効化
     /*
     const interval = setInterval(() => {
       if (ytPlayer.getCurrentTime() >= end) {
@@ -174,20 +179,58 @@ document.addEventListener("DOMContentLoaded", () => {
     */
   }
 
-  // ✅ CSRFトークン取得関数
+  function toggleFavoriteButton() {
+    if (favoriteButton.classList.contains("favorited")) {
+      unfavoriteVideo(videoId);
+    } else {
+      favoriteVideo(videoId);
+    }
+  }
+
+  function favoriteVideo(videoId) {
+    fetch(`/videos/${videoId}/video_favorite`, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": getCsrfToken(),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ video_id: videoId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.id) {
+        favoriteButton.textContent = "お気に入り解除";
+        favoriteButton.classList.add("favorited");
+        }
+      })
+    .catch(error => console.error("エラー:", error));
+  }
+
+  function unfavoriteVideo(videoId) {
+    fetch(`/videos/${videoId}/video_favorite`, {
+      method: "DELETE",
+      headers: {
+        "X-CSRF-Token": getCsrfToken(),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ video_id: videoId })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message) {
+        favoriteButton.textContent = "お気に入り登録";
+        favoriteButton.classList.remove("favorited");
+      }
+    })
+    .catch(error => console.error("エラー:", error));
+  }
+
   function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content || "";
   }
 
-  // ✅ イベントリスナー登録
-  if (clipForm) {
-    clipForm.addEventListener("submit", handleFormSubmit);
-  }
-  
+  clipForm?.addEventListener("submit", handleFormSubmit);
   clipList?.addEventListener("click", handleClipDelete);
   clipList?.addEventListener("click", handleClipPlay);
-
-  clipForm?.addEventListener("ajax:error", event => {
-    //console.error("❌ ajax:error イベント発火:", event.detail);
-  });
+  favoriteButton?.addEventListener("click", toggleFavoriteButton);
 });

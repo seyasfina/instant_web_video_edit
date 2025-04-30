@@ -1,0 +1,5 @@
+<% if current_user.favorited?(video) %>
+  <button class="favorited" id="favorite-toggle" type="button">お気に入り解除</button>
+<% else %>
+  <button id="favorite-toggle" type="button">お気に入り登録</button>
+<% end %>
