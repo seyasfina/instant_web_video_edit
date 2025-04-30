@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   devise_for :users, controllers: {
     omniauth_callbacks: "users/omniauth_callbacks",
-    registrations: "users/registrations",
+    registrations: "users/registrations"
   }
 
   resources :users, only: [ :show ]
@@ -15,8 +15,8 @@ Rails.application.routes.draw do
     resource :video_favorite, only: [ :create, :destroy ], defaults: { format: :json }
   end
 
-  get '/404', to: 'errors#not_found'
-  get '/500', to: 'errors#internal_server_error'
+  get "/404", to: "errors#not_found"
+  get "/500", to: "errors#internal_server_error"
 
   match "*path", to: "errors#not_found", via: :all
 end
