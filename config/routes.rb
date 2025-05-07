@@ -6,6 +6,11 @@ Rails.application.routes.draw do
     registrations: "users/registrations"
   }
 
+  controller :static_pages do
+    get 'terms'   => :terms,   as: :terms
+    get 'privacy' => :privacy, as: :privacy
+  end
+
   resources :users, only: [ :show ]
   resources :videos, only: [ :new, :create, :index, :show ] do
     collection do
