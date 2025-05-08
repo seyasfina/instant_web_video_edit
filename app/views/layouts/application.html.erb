@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instant Web Video Edit</title>
+  <meta name="description" content="YouTube 動画をその場で編集し、タイムスタンプ単位でクリップ保存。">
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
   <%= javascript_importmap_tags %>
 </head>
 
@@ -17,5 +19,8 @@
   <main>
     <%= yield %>
   </main>
+
+  <%= render 'layouts/footer' %>
+  
 </body>
 </html>

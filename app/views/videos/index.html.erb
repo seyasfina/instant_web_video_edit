@@ -1,5 +1,16 @@
 <ul>
   <% @videos.each do |video| %>
-    <li><%= link_to video.title, video_path(video) %><%= image_tag video.thumbnail_url %></li>
+    <li>
+    <% if video.title.present? %>
+      <%= link_to video.title, video_path(video) %>
+    <% else %>
+      <%= link_to "タイトルが表示できません", video_path(video) %>
+    <% end %>
+    <% if video.thumbnail_url.present? %>
+      <%= image_tag video.thumbnail_url %>
+    <% else %>
+      <%= link_to "サムネイルが表示できません", video_path(video) %>
+    <% end %>
+    </li>
   <% end %>
 </ul>

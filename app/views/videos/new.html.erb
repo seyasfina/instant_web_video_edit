@@ -1,8 +1,14 @@
-<h1>現在対応している動画プラットフォームはYoutubeのみとなっています</h1>
-<h1>クリップの作成には現状アカウント登録が必要です</h1>
-<h1>今後のアップデートで未ログイン状態でもクリップの作成ができるよう対応予定です</h1>
+<div>
+  <h1>Instant Web Video Edit</h1>
+</div>
 
-<%= form_with(model: @video, local: true) do |form| %>
+<div>
+<p>※現在対応している動画プラットフォームはYouTubeのみです。</p>
+<p>クリップの作成にはアカウント登録が必要です。</p>
+<p>今後のアップデートで未ログインでもクリップ作成可能になります。</p>
+</div>
+
+<%= form_with(model: @video, local: true, html: { class: "videos_new_form" }) do |form| %>
   <div>
     <%= form.label :url, "動画のURL" %><br>
     <%= form.text_field :url, placeholder: "動画URLを入力してください" %>
