@@ -25,7 +25,7 @@
     <div>
       <p>
         <%= link_to video_favorite.video.title, video_path(video_favorite.video), id: "video-favorite-#{video_favorite.video.id}", data: { video_id: video_favorite.video.id }, target: "_blank" %>
-        <% if video_history.video.thumbnail_url.present? %>
+        <% if video_favorite.video.thumbnail_url.present? %>
           <%= image_tag video_favorite.video.thumbnail_url %>
         <% end %>
       </p>
