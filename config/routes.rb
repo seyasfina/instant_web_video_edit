@@ -7,8 +7,8 @@ Rails.application.routes.draw do
   }
 
   controller :static_pages do
-    get 'terms'   => :terms,   as: :terms
-    get 'privacy' => :privacy, as: :privacy
+    get "terms"   => :terms,   as: :terms
+    get "privacy" => :privacy, as: :privacy
   end
 
   resources :users, only: [ :show ]
