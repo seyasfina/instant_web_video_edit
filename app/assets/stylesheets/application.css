@@ -1,15 +1,75 @@
-/*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
- *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
- *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
- *
- *= require_tree .
- *= require_self
- */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #5a5a5a;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color:#2c0457;
+  padding: 5px;
+  font-size: 1.5rem;
+  color: #ffffff;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header_center_form {
+  display: flex;
+  justify-content: center;
+}
+
+main {
+  flex: 1;
+}
+
+footer {
+  background-color: #6d6d6d;
+  padding: 5px;
+  font-size: 1rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header_link_button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.header_link_button:hover {
+  background-color: #140129;
+}
+
+.footer_link_button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.footer_link_button:hover {
+  background-color: #3a3a3a;
+}
+
+.videos_new_form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
