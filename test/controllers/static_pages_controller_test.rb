@@ -2,12 +2,12 @@ require "test_helper"
 
 class StaticPagesControllerTest < ActionDispatch::IntegrationTest
   test "should get terms" do
-    get static_pages_terms_url
+    get terms_url
     assert_response :success
   end
 
   test "should get privacy" do
-    get static_pages_privacy_url
+    get privacy_url
     assert_response :success
   end
 end
