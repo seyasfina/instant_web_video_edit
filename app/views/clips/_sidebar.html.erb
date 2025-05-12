@@ -1,16 +1,13 @@
-<div>
-  <%= render 'clips/form', video: @video %>
-  <div>
-    <ul id="clip-list">
-      <% clips.each do |clip| %>
-        <li data-clip-id="<%= clip.id %>" >
-          <span>(開始: <%= clip.seconds_to_hms(clip.start_time) %> 秒, 終了: <%= clip.seconds_to_hms(clip.end_time) %> 秒)</span>
-          <div>
-            <button class="play-clip" data-start="<%= clip.start_time %>" data-end="<%= clip.end_time %>">再生</button>
-            <button class="delete-clip">削除</button>
-          </div>
-        </li>
-      <% end %>
-    </ul>
-  </div>
+<div id="clip-list">
+  <% clips.each do |clip| %>
+    <div data-clip-id="<%= clip.id %>" >
+      <span>(開始: <%= clip.seconds_to_hms(clip.start_time) %> 秒, 終了: <%= clip.seconds_to_hms(clip.end_time) %> 秒)</span>
+      <div>
+        <button class="play-clip" data-start="<%= clip.start_time %>" data-end="<%= clip.end_time %>">再生</button>
+        <button class="delete-clip">削除</button>
+      </div>
+    </div>
+  <% end %>
 </div>
+
+

@@ -1,16 +1,23 @@
-<ul>
+<div class="video-index">
   <% @videos.each do |video| %>
-    <li>
     <% if video.title.present? %>
-      <%= link_to video.title, video_path(video) %>
+      <%= link_to video_path(video), class: "image-and-title" do %>
+        <% if video.thumbnail_url.present? %>
+          <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
+          <% else %>
+            <div>サムネイルが表示できません。</div>
+          <% end %>
+          <div><%= video.title %></div>
+      <% end %>
     <% else %>
-      <%= link_to "タイトルが表示できません", video_path(video) %>
+      <%= link_to video_path(video), class: "image-and-title" do %>
+        <% if video.thumbnail_url.present? %>
+          <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
+        <% else %>
+          <div>サムネイルが表示できません。</div>  
+        <% end %>
+        <div>タイトルが表示できません。</div>
+      <% end %>
     <% end %>
-    <% if video.thumbnail_url.present? %>
-      <%= image_tag video.thumbnail_url %>
-    <% else %>
-      <%= link_to "サムネイルが表示できません", video_path(video) %>
-    <% end %>
-    </li>
   <% end %>
-</ul>
+</div>
