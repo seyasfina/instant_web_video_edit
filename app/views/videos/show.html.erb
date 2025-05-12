@@ -1,13 +1,17 @@
-<div>
-  <div>
-    <div>
+<div class="video-show">
+  <div class="video-container">
+    <div class="video-player">
       <iframe id="player" src="<%= @video.embed_url %>" frameborder="0" allowfullscreen></iframe>
     </div>
+    <div>
+      <span>ブラウザの自動再生ポリシーによって動画が再生されない可能性があるため、動画プレイヤーをクリックしてから再生してください</span>
+    </div>
+    <div>
+      <%= render 'videos/favorite', video: @video %>
+      <%= render 'clips/form', video: @video %>     
+    </div>
   </div>
-  <p>ブラウザの自動再生ポリシーによって動画が再生されない可能性があるため、動画プレイヤーをクリックしてから再生してください</p>
-  <div>
-    <%= render 'videos/favorite', video: @video %>
-  <div>
+  <div class="clips-container">
     <%= render 'clips/sidebar', clips: @clips %>
   </div>
 </div>
