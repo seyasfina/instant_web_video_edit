@@ -1,20 +1,26 @@
-<div>
-  <h1>Instant Web Video Edit</h1>
-</div>
-
-<div>
-<p>※現在対応している動画プラットフォームはYouTubeのみです。</p>
-<p>クリップの作成にはアカウント登録が必要です。</p>
-<p>今後のアップデートで未ログインでもクリップ作成可能になります。</p>
-</div>
-
-<%= form_with(model: @video, local: true, html: { class: "videos_new_form" }) do |form| %>
-  <div>
-    <%= form.label :url, "動画のURL" %><br>
-    <%= form.text_field :url, placeholder: "動画URLを入力してください" %>
+<div class="video-new">
+  <div class="page-title">
+    <h1>Instant Web Video Edit</h1>
   </div>
 
-  <div>
-    <%= form.submit "動画を編集する" %>
+  <div class="page-description">
+    <p>Instant Web Video Editは、YouTube動画をその場で編集し、タイムスタンプ単位でクリップ保存できるサービスです。</p>
+    <p>動画URLを入力して、編集をしてみてください。</p>
+    <p>動画URLは、YouTubeの動画ページにあるURLをコピーして貼り付けてください。</p>
+    <p>例: https://www.youtube.com/watch?v=XXXXXXXXXXX</p>
+    <p>※現在対応している動画プラットフォームはYouTubeのみです。</p>
+    <p>※クリップの作成にはアカウント登録が必要です。</p>
+    <p>※今後のアップデートで未ログインでもクリップ作成可能になります。</p>
   </div>
-<% end %>
+
+  <%= form_with(model: @video, local: true, html: { class: "page_search_form" }) do |form| %>
+    <div>
+      <%= form.label :url, "", class: "page_search_label" %>
+      <%= form.text_field :url, placeholder: "動画URLを入力してください", class: "page_search_field" %>
+    </div>
+
+    <div>
+      <%= form.submit "", class: "page_search_submit" %>
+    </div>
+  <% end %>
+</div>
