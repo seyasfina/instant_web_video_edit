@@ -222,6 +222,13 @@ footer {
   background-position: center;
 }
 
+.static-error-flame {
+  display: flex;
+  flex: 0 0 80%;
+  margin: 0 auto;
+  background-color: #ffffff;
+}
+
 .static-error-page {
   display: flex;
   justify-content: center;
