@@ -11,7 +11,7 @@ Rails.application.routes.draw do
     get "privacy" => :privacy, as: :privacy
   end
 
-  resources :users, only: [ :show ]
+  resource :user, only: [ :show ], path: 'you'
   resources :videos, only: [ :new, :create, :index, :show ] do
     collection do
       get :autocomplete
