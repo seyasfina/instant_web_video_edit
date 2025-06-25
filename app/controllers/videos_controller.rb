@@ -14,7 +14,7 @@ class VideosController < ApplicationController
     if existing_video
       redirect_to video_path(existing_video)
     else
-      @video = Video.new(video_params)
+      @video = temp_video
       if @video.save
         redirect_to @video
       else
