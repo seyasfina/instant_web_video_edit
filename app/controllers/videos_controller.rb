@@ -24,7 +24,6 @@ class VideosController < ApplicationController
   end
 
   def index
-    @q = Video.ransack(params[:q])
     @videos = @q.result(distinct: true)
   end
 
