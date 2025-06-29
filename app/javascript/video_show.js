@@ -6,19 +6,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const videoId = clipForm.dataset.videoId;
   const favoriteButton = document.getElementById("favorite-toggle");
 
-  if (!window.YT?.Player) {
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.head.appendChild(tag);
-  }
-
   window.onYouTubeIframeAPIReady = function () {
+    const playerEl = document.getElementById("player");
+    if (!playerEl) {
+      return;
+    } 
     ytPlayer = new YT.Player("player", {
       events: {
         "onReady": onPlayerReady
       }
     });
   };
+
+  if (window.YT === undefined) {
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.head.appendChild(tag);
+  }
 
   function onPlayerReady() {
     document.getElementById("set-start-time")?.addEventListener("click", () => {
@@ -35,13 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function secondsToHms(seconds) {
-    seconds = parseFloat(seconds);
-   
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
 
-    const hStr = h.toString().padStart(2, '0');
+    const hStr = h.toString()
     const mStr = m.toString().padStart(2, '0');
     const sStr = s.toFixed(2).padStart(5, '0');
 
@@ -84,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
       body: formData,
       headers: {
         "X-CSRF-Token": getCsrfToken(),
-        "X-Requested-With": "XMLHttpRequest"
+        //"X-Requested-With": "XMLHttpRequest"
       }
     })
     .then(response => {
@@ -101,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addClipToUI(data);
       resetForm();
     })
-    .catch(error => {
+    .catch(() => {
       clipForm.querySelector("input[type='submit']").disabled = false;
     });
   }
@@ -115,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addClipToUI(data) {
-    const newClip = document.createElement("li");
+    const newClip = document.createElement("div");
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
       <span>(開始: ${secondsToHms(data.start_time)} 秒, 終了: ${secondsToHms(data.end_time)} 秒)</span>
@@ -124,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button class="delete-clip">削除</button>
       </div>
     `;
-    clipList?.appendChild(newClip);
+    clipList.appendChild(newClip);
   }
 
   function resetForm() {
@@ -137,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     //特定の要素をクリックした場合のみ処理を実行
     if (!e.target.classList.contains("delete-clip")) return;
 
-    const clipElement = e.target.closest("li");
+    const clipElement = e.target.closest("[data-clip-id]");
     const clipId = clipElement.dataset.clipId;
 
     deleteClip(clipId, clipElement);
@@ -148,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "DELETE",
       headers: {
         "X-CSRF-Token": getCsrfToken(),
-        "Content-Type": "application/json"
       }
     })
     .then(response => {
@@ -192,9 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "POST",
       headers: {
         "X-CSRF-Token": getCsrfToken(),
-        "Content-Type": "application/json"
       },
-      body: JSON.stringify({ video_id: videoId })
     })
     .then(response => response.json())
     .then(data => {
@@ -211,9 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "DELETE",
       headers: {
         "X-CSRF-Token": getCsrfToken(),
-        "Content-Type": "application/json"
       },
-      body: JSON.stringify({ video_id: videoId })
     })
     .then(response => response.json())
     .then(data => {
