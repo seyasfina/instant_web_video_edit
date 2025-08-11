@@ -163,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!e.target.classList.contains("play-clip")) return;
 
     const start = parseFloat(e.target.dataset.start);
-    const end = parseFloat(e.target.dataset.end);
     //ブラウザの自動再生ポリシーにより、ユーザーが最初に動画プレイヤーをクリックする必要がある
     ytPlayer.seekTo(start, true);
     ytPlayer.playVideo();
