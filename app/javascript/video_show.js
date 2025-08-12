@@ -203,21 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ytPlayer.seekTo(end, true);
       ytPlayer.playVideo();
     }
-
-    if (clipId && loopEnabledByClipId.has(clipId)) {
-      startLoopWatcher();
-    }
-
-    //クリップ再生終了時の処理、選択できるようになった際に有効化
-    /*
-    const interval = setInterval(() => {
-      if (ytPlayer.getCurrentTime() >= end) {
-        ytPlayer.pauseVideo();
-        clearInterval(interval);
-        console.log("⏹ Clip playback finished");
-      }
-    }, 500);
-    */
+    startLoopWatcher();
   }
 
   function handleLoopClip(e) {
@@ -236,24 +222,29 @@ document.addEventListener("DOMContentLoaded", () => {
       loopEnabledByClipId.delete(clipId);
       btn.textContent = "ループ";
       btn.classList.remove("is-looping");
-      if (activeClip?.clipId === clipId) {
-        stopLoopWatcher();
-        activeClip = null;
-      }
+      if (activeClip?.clipId === clipId) startLoopWatcher();
     }
   }
 
   function startLoopWatcher() {
     stopLoopWatcher();
     if (!activeClip) return;
-    if (!loopEnabledByClipId.has(activeClip.clipId)) return;
     loopTimer = setInterval(() => {
       const state = ytPlayer?.getPlayerState?.();
       if (state !== YT.PlayerState.PLAYING) return;
       const t = ytPlayer.getCurrentTime();
       if (t >= activeClip.end) {
-        ytPlayer.seekTo(activeClip.start, true);
-        ytPlayer.playVideo();
+        const loopon = loopEnabledByClipId.has(activeClip.clipId);
+        const autoStop = document.getElementById("stop-after-clip")?.checked;
+        if (loopon) {
+          ytPlayer.seekTo(activeClip.start, true);
+          ytPlayer.playVideo();
+        } else if (autoStop) {
+          ytPlayer.pauseVideo();
+          stopLoopWatcher();
+        } else {
+          stopLoopWatcher();
+        }
       }
     }, 200);
   }

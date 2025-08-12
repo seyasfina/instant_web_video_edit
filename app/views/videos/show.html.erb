@@ -10,6 +10,10 @@
         </div>
         <div>
           <%= render 'videos/favorite', video: @video %>
+          <label>
+            <input type="checkbox" id="stop-after-clip">
+            クリップ再生終了で自動停止する
+          </label>
           <%= render 'clips/form', video: @video %>     
         </div>
       </div>
