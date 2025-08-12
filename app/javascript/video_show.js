@@ -75,11 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
     const startTimeValue = clipForm.elements["clip[start_time]"].value;
     const endTimeValue = clipForm.elements["clip[end_time]"].value;
+    const titleValue = clipForm.elements["clip[title]"].value;
     const startTimeToSeconds = hmsToSeconds(startTimeValue);
     const endTimeToSeconds = hmsToSeconds(endTimeValue);
     let formData = new FormData();
     formData.set("clip[start_time]", startTimeToSeconds);
     formData.set("clip[end_time]", endTimeToSeconds);
+    formData.set("clip[title]", titleValue);
     saveClip(formData);
   }
 
@@ -120,11 +122,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addClipToUI(data) {
+    const title = data.title;
     const start = Number(data.start_time);
     const end   = Number(data.end_time);
     const newClip = document.createElement("div");
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
+    <p>${title}</p>
     <p>
       Start:
       <span class="play-clip start-clip" data-start="${start}" data-end="${end}">
