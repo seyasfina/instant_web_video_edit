@@ -38,6 +38,6 @@ class ClipsController < ApplicationController
   end
 
   def clip_params
-    params.require(:clip).permit(:start_time, :end_time)
+    params.require(:clip).permit(:start_time, :end_time, :title)
   end
 end

@@ -1,6 +1,7 @@
 <div id="clip-list">
   <% clips.each do |clip| %>
     <div data-clip-id="<%= clip.id %>">
+      <p><%= clip.title %></p>
       <p>
         Start:
         <span class="play-clip start-clip" data-start="<%= clip.start_time %>" data-end="<%= clip.end_time %>">

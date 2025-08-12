@@ -10,6 +10,13 @@
   
     <%= f.label :end_time, "終了時間" %>
     <%= f.text_field :end_time, id: "clip_end_time", required: true, type: "text" %>
+
+    <br>
+
+    <%= f.label :title, "クリップタイトル" %>
+    <%= f.text_field :title, id: "clip_title", type: "text" %>
+
+    <br>
   
     <%= f.submit "クリップを保存" %>
   <% end %>
