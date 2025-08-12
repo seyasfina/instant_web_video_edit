@@ -3,7 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let ytPlayer;
   const clipForm = document.getElementById("clip-form");
   const clipList = document.getElementById("clip-list");
-  const videoId = clipForm.dataset.videoId;
+  const videoId = clipForm?.dataset.videoId;
+  let loopTimer = null;
+  let activeClip = null;
+  const loopEnabledByClipId = new Set();
   const favoriteButton = document.getElementById("favorite-toggle");
 
   window.onYouTubeIframeAPIReady = function () {
@@ -18,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
-  if (window.YT === undefined) {
+  if (!window.YT?.Player) {
     const tag = document.createElement("script");
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
@@ -43,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
 
-    const hStr = h.toString()
+    const hStr = h.toString().padStart(2, '0');
     const mStr = m.toString().padStart(2, '0');
     const sStr = s.toFixed(2).padStart(5, '0');
 
@@ -86,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       body: formData,
       headers: {
         "X-CSRF-Token": getCsrfToken(),
-        //"X-Requested-With": "XMLHttpRequest"
+        "X-Requested-With": "XMLHttpRequest"
       }
     })
     .then(response => {
@@ -117,14 +120,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addClipToUI(data) {
+    const start = Number(data.start_time);
+    const end   = Number(data.end_time);
     const newClip = document.createElement("div");
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
-      <span>(開始: ${secondsToHms(data.start_time)} 秒, 終了: ${secondsToHms(data.end_time)} 秒)</span>
-      <div>
-        <button class="play-clip" data-start="${data.start_time}" data-end="${data.end_time}">再生</button>
-        <button class="delete-clip">削除</button>
-      </div>
+    <p>
+      Start:
+      <span class="play-clip start-clip" data-start="${start}" data-end="${end}">
+        ${secondsToHms(start)}
+      </span>
+    </p>
+    <p>
+      End:
+      <span class="play-clip" data-start="${start}" data-end="${end}">
+        ${secondsToHms(end)}
+      </span>
+    </p>
+    <div>
+      <button class="play-clip start-clip" data-start="${start}" data-end="${end}" type="button">再生</button>
+      <button class="delete-clip">削除</button>
+      <button class="edit-clip">編集</button>
+      <button class="loop-btn" type="button">ループ</button>
+    </div>
     `;
     clipList.appendChild(newClip);
   }
@@ -154,6 +172,11 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(response => {
       if (!response.ok) throw new Error(`HTTPエラー！ステータス: ${response.status}`);
+      loopEnabledByClipId.delete(clipId);
+      if (activeClip?.clipId === clipId) {
+        stopLoopWatcher();
+        activeClip = null;
+      }
       clipElement.remove();
     })
     .catch(error => console.error("❌ クリップ削除エラー:", error));
@@ -163,9 +186,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!e.target.classList.contains("play-clip")) return;
 
     const start = parseFloat(e.target.dataset.start);
+    const end = parseFloat(e.target.dataset.end);
     //ブラウザの自動再生ポリシーにより、ユーザーが最初に動画プレイヤーをクリックする必要がある
-    ytPlayer.seekTo(start, true);
-    ytPlayer.playVideo();
+    stopLoopWatcher();
+    const clipEl = e.target.closest("[data-clip-id]");
+    const clipId = clipEl?.dataset.clipId;
+    activeClip = { start, end, clipId };
+    if (e.target.classList.contains("start-clip")) {
+      ytPlayer.seekTo(start, true);
+      ytPlayer.playVideo();
+    } else {
+      ytPlayer.seekTo(end, true);
+      ytPlayer.playVideo();
+    }
+
+    if (clipId && loopEnabledByClipId.has(clipId)) {
+      startLoopWatcher();
+    }
 
     //クリップ再生終了時の処理、選択できるようになった際に有効化
     /*
@@ -177,6 +214,48 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }, 500);
     */
+  }
+
+  function handleLoopClip(e) {
+    const btn = e.target.closest(".loop-btn");
+    if (!btn) return;
+
+    const clipId = btn.closest("[data-clip-id]")?.dataset.clipId;
+    const willEnable = !loopEnabledByClipId.has(clipId);
+
+    if (willEnable) {
+      loopEnabledByClipId.add(clipId);
+      btn.textContent = "ループ解除";
+      btn.classList.add("is-looping");
+      if (activeClip?.clipId === clipId) startLoopWatcher();
+    } else {
+      loopEnabledByClipId.delete(clipId);
+      btn.textContent = "ループ";
+      btn.classList.remove("is-looping");
+      if (activeClip?.clipId === clipId) {
+        stopLoopWatcher();
+        activeClip = null;
+      }
+    }
+  }
+
+  function startLoopWatcher() {
+    stopLoopWatcher();
+    if (!activeClip) return;
+    if (!loopEnabledByClipId.has(activeClip.clipId)) return;
+    loopTimer = setInterval(() => {
+      const state = ytPlayer?.getPlayerState?.();
+      if (state !== YT.PlayerState.PLAYING) return;
+      const t = ytPlayer.getCurrentTime();
+      if (t >= activeClip.end) {
+        ytPlayer.seekTo(activeClip.start, true);
+        ytPlayer.playVideo();
+      }
+    }, 200);
+  }
+
+  function stopLoopWatcher() {
+    if (loopTimer) { clearInterval(loopTimer); loopTimer = null; }
   }
 
   function toggleFavoriteButton() {
@@ -228,5 +307,6 @@ document.addEventListener("DOMContentLoaded", () => {
   clipForm?.addEventListener("submit", handleFormSubmit);
   clipList?.addEventListener("click", handleClipDelete);
   clipList?.addEventListener("click", handleClipPlay);
+  clipList?.addEventListener("click", handleLoopClip);
   favoriteButton?.addEventListener("click", toggleFavoriteButton);
 });
