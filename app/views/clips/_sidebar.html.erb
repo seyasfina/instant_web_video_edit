@@ -1,7 +1,7 @@
 <div id="clip-list">
   <% clips.each do |clip| %>
     <div data-clip-id="<%= clip.id %>">
-      <p><%= clip.title %></p>
+      <p class="clip-title" data-clip-title="<%= clip.title %>"><%= clip.title %></p>
       <p>
         Start:
         <span class="play-clip start-clip" data-start="<%= clip.start_time %>" data-end="<%= clip.end_time %>">
@@ -20,6 +20,29 @@
         <button class="edit-clip">編集</button>
         <button class="loop-btn" type="button">ループ</button>
       </div>
+      <form class="clip-edit-form" hidden>
+        <div>
+          <label>タイトル</label>
+          <input name="clip[title]" value="">
+        </div>
+        <div>
+          <label>開始</label>
+          <input name="clip[start_time]" value="" />
+          <button type="button" class="use-current-start">▶ 今の位置を開始</button>
+        </div>
+        <div>
+          <label>終了</label>
+          <input name="clip[end_time]" value="" />
+          <button type="button" class="use-current-end">▶ 今の位置を終了</button>
+        </div>
+
+        <div class="errors" aria-live="polite"></div>
+
+        <div class="row">
+          <button type="submit">保存</button>
+          <button type="button" class="cancel-edit">キャンセル</button>
+        </div>
+      </form>
     </div>
   <% end %>
 </div>

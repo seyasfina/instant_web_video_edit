@@ -253,6 +253,125 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loopTimer) { clearInterval(loopTimer); loopTimer = null; }
   }
 
+  function closeAllEditForms() {
+    clipList.querySelectorAll(".clip-edit-form").forEach(form => form.hidden = true);
+  }
+
+  function handleEditClick(e) {
+    const editButton = e.target.closest(".edit-clip");
+    if (!editButton) return;
+
+    const row = editButton.closest("[data-clip-id]");
+    const form = row.querySelector(".clip-edit-form");
+    const isOpen = !form.hidden;
+
+    closeAllEditForms();
+    form.hidden = isOpen;
+
+    if (!isOpen) {
+      const startTime = row.querySelector(".play-clip").dataset.start;
+      const endTime = row.querySelector(".play-clip").dataset.end;
+      form.elements["clip[start_time]"].value = secondsToHms(startTime);
+      form.elements["clip[end_time]"].value = secondsToHms(endTime);
+      form.elements["clip[title]"].value = row.dataset.clipTitle.textContent;
+    }
+  }
+
+  function handleCancelEdit(e) {
+    const cancelBtn = e.target.closest(".cancel-edit");
+    if (!cancelBtn) return;
+
+    const form = cancelBtn.closest(".clip-edit-form");
+    form.hidden = true;
+  }
+
+  function handleUseCurrent(e) {
+    const btnStart = e.target.closest(".use-current-start");
+    const btnEnd   = e.target.closest(".use-current-end");
+    if (!btnStart && !btnEnd) return;
+
+    const form = e.target.closest(".clip-edit-form");
+    const nowHms = secondsToHms(ytPlayer.getCurrentTime());
+
+    if (btnStart) {
+      form.querySelector('input[name="clip[start_time]"]').value = nowHms;
+    }
+    if (btnEnd) {
+      form.querySelector('input[name="clip[end_time]"]').value = nowHms;
+    }
+  }
+
+  async function handleEditSubmit(e) {
+    const form = e.target.closest(".clip-edit-form");
+    if (!form) return;
+    e.preventDefault();
+
+    const row    = form.closest("[data-clip-id]");
+    const clipId = row.dataset.clipId;
+
+    const title     = form.querySelector('input[name="clip[title]"]').value.trim();
+    const startHms  = form.querySelector('input[name="clip[start_time]"]').value.trim();
+    const endHms    = form.querySelector('input[name="clip[end_time]"]').value.trim();
+
+    const startSec = hmsToSeconds(startHms);
+    const endSec   = hmsToSeconds(endHms);
+
+    const errs = [];
+    if (Number.isNaN(startSec) || Number.isNaN(endSec)) errs.push("時刻の形式が不正です（mm:ss または hh:mm:ss）");
+    if (startSec >= endSec) errs.push("終了は開始より後である必要があります");
+
+    const errBox = form.querySelector(".errors");
+    errBox.innerHTML = errs.map(m => `<p>${m}</p>`).join("");
+    if (errs.length) return;
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+
+    try {
+      const res = await fetch(`/videos/${videoId}/clips/${clipId}`, {
+        method: "PATCH",
+        headers: {
+          "X-CSRF-Token": getCsrfToken(),
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ clip: { title, start_time: startSec, end_time: endSec } })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errBox.innerHTML = (data.errors || ["更新に失敗しました"]).map(m => `<p>${m}</p>`).join("");
+        return;
+      }
+
+      row.querySelector(".clip-title").textContent = data.title || "";
+      const spans = row.querySelectorAll(".play-clip");
+      spans.forEach(sp => {
+        sp.dataset.start = data.start_time;
+        sp.dataset.end   = data.end_time;
+      });
+
+      const startTextEl = row.querySelector("span.play-clip.start-clip");
+      const endTextEl   = row.querySelector("span.play-clip:not(.start-clip)");
+      if (startTextEl) startTextEl.textContent = secondsToHms(Number(data.start_time));
+      if (endTextEl)   endTextEl.textContent   = secondsToHms(Number(data.end_time));
+
+      if (activeClip?.clipId === clipId) {
+        activeClip.start = Number(data.start_time);
+        activeClip.end   = Number(data.end_time);
+        startLoopWatcher();
+      }
+
+      errBox.innerHTML = "";
+      form.hidden = true;
+    } catch (err) {
+      errBox.innerHTML = `<p>通信に失敗しました</p>`;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  }
+
   function toggleFavoriteButton() {
     if (favoriteButton.classList.contains("favorited")) {
       unfavoriteVideo(videoId);
@@ -303,5 +422,9 @@ document.addEventListener("DOMContentLoaded", () => {
   clipList?.addEventListener("click", handleClipDelete);
   clipList?.addEventListener("click", handleClipPlay);
   clipList?.addEventListener("click", handleLoopClip);
+  clipList?.addEventListener("click", handleEditClick);
+  clipList?.addEventListener("click", handleCancelEdit);
+  clipList?.addEventListener("click", handleUseCurrent);
+  clipList?.addEventListener("submit", handleEditSubmit);
   favoriteButton?.addEventListener("click", toggleFavoriteButton);
 });
