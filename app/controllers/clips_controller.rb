@@ -23,7 +23,17 @@ class ClipsController < ApplicationController
   end
 
   def destroy
-    @clip.destroy
+    vid  = @clip.video_id
+    uid  = @clip.user_id
+    p    = @clip.position
+
+    Clip.transaction do
+      @clip.destroy!
+      Clip.where(video_id: vid, user_id: uid)
+          .where("position > ?", p)
+          .update_all("position = position - 1")
+    end
+
     head :no_content
   end
 
