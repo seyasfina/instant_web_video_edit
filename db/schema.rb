@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_12_120118) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_04_082329) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -22,7 +22,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_12_120118) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title"
+    t.integer "position", null: false
     t.index ["user_id"], name: "index_clips_on_user_id"
+    t.index ["video_id", "user_id", "position"], name: "index_clips_on_vid_uid_position", unique: true
     t.index ["video_id"], name: "index_clips_on_video_id"
   end
 
