@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const playerEl = document.getElementById("player");
     if (!playerEl) {
       return;
-    } 
+    }
     ytPlayer = new YT.Player("player", {
       events: {
         "onReady": onPlayerReady
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function hmsToSeconds(hms) {
     const parts = hms.split(":").map(parseFloat);
     let seconds = 0;
-  
+
     if (parts.length === 3) {
       const [h, m, s] = parts;
       seconds = h * 3600 + m * 60 + s;
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const [m, s] = parts;
       seconds = m * 60 + s;
     }
-    
+
     return seconds;
   }
 
@@ -94,23 +94,23 @@ document.addEventListener("DOMContentLoaded", () => {
         "X-Requested-With": "XMLHttpRequest"
       }
     })
-    .then(response => {
-      if (!response.ok) {
-        return response.json().then(errData => {
-          displayErrors(errData.errors);
-          throw new Error(`HTTPエラー！ステータス: ${response.status}`);
-        });
-      }
-      return response.json();
-    })
-    .then(data => {
-      document.getElementById("clip-errors").innerHTML = "";
-      addClipToUI(data);
-      resetForm();
-    })
-    .catch(() => {
-      clipForm.querySelector("input[type='submit']").disabled = false;
-    });
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(errData => {
+            displayErrors(errData.errors);
+            throw new Error(`HTTPエラー！ステータス: ${response.status}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        document.getElementById("clip-errors").innerHTML = "";
+        addClipToUI(data);
+        resetForm();
+      })
+      .catch(() => {
+        clipForm.querySelector("input[type='submit']").disabled = false;
+      });
   }
 
   function displayErrors(errors) {
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function addClipToUI(data) {
     const title = data.title;
     const start = Number(data.start_time);
-    const end   = Number(data.end_time);
+    const end = Number(data.end_time);
     const newClip = document.createElement("div");
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
@@ -147,6 +147,29 @@ document.addEventListener("DOMContentLoaded", () => {
       <button class="edit-clip">編集</button>
       <button class="loop-btn" type="button">ループ</button>
     </div>
+    <form class="clip-edit-form" hidden>
+      <div>
+        <label>タイトル</label>
+        <input name="clip[title]" value="">
+      </div>
+      <div>
+        <label>開始</label>
+        <input name="clip[start_time]" value="" />
+        <button type="button" class="use-current-start">▶ 今の位置を開始</button>
+      </div>
+      <div>
+        <label>終了</label>
+        <input name="clip[end_time]" value="" />
+        <button type="button" class="use-current-end">▶ 今の位置を終了</button>
+      </div>
+
+      <div class="errors" aria-live="polite"></div>
+
+      <div class="row">
+        <button type="submit">保存</button>
+        <button type="button" class="cancel-edit">キャンセル</button>
+      </div>
+    </form>
     `;
     clipList.appendChild(newClip);
   }
@@ -155,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clipForm.reset();
     //Rails UJS による submit ボタンの無効化を解除
     clipForm.querySelector("input[type='submit']").disabled = false;
-  }  
+  }
 
   function handleClipDelete(e) {
     //特定の要素をクリックした場合のみ処理を実行
@@ -174,16 +197,16 @@ document.addEventListener("DOMContentLoaded", () => {
         "X-CSRF-Token": getCsrfToken(),
       }
     })
-    .then(response => {
-      if (!response.ok) throw new Error(`HTTPエラー！ステータス: ${response.status}`);
-      loopEnabledByClipId.delete(clipId);
-      if (activeClip?.clipId === clipId) {
-        stopLoopWatcher();
-        activeClip = null;
-      }
-      clipElement.remove();
-    })
-    .catch(error => console.error("❌ クリップ削除エラー:", error));
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTPエラー！ステータス: ${response.status}`);
+        loopEnabledByClipId.delete(clipId);
+        if (activeClip?.clipId === clipId) {
+          stopLoopWatcher();
+          activeClip = null;
+        }
+        clipElement.remove();
+      })
+      .catch(error => console.error("❌ クリップ削除エラー:", error));
   }
 
   function handleClipPlay(e) {
@@ -287,7 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleUseCurrent(e) {
     const btnStart = e.target.closest(".use-current-start");
-    const btnEnd   = e.target.closest(".use-current-end");
+    const btnEnd = e.target.closest(".use-current-end");
     if (!btnStart && !btnEnd) return;
 
     const form = e.target.closest(".clip-edit-form");
@@ -306,15 +329,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!form) return;
     e.preventDefault();
 
-    const row    = form.closest("[data-clip-id]");
+    const row = form.closest("[data-clip-id]");
     const clipId = row.dataset.clipId;
 
-    const title     = form.querySelector('input[name="clip[title]"]').value.trim();
-    const startHms  = form.querySelector('input[name="clip[start_time]"]').value.trim();
-    const endHms    = form.querySelector('input[name="clip[end_time]"]').value.trim();
+    const title = form.querySelector('input[name="clip[title]"]').value.trim();
+    const startHms = form.querySelector('input[name="clip[start_time]"]').value.trim();
+    const endHms = form.querySelector('input[name="clip[end_time]"]').value.trim();
 
     const startSec = hmsToSeconds(startHms);
-    const endSec   = hmsToSeconds(endHms);
+    const endSec = hmsToSeconds(endHms);
 
     const errs = [];
     if (Number.isNaN(startSec) || Number.isNaN(endSec)) errs.push("時刻の形式が不正です（mm:ss または hh:mm:ss）");
@@ -349,17 +372,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const spans = row.querySelectorAll(".play-clip");
       spans.forEach(sp => {
         sp.dataset.start = data.start_time;
-        sp.dataset.end   = data.end_time;
+        sp.dataset.end = data.end_time;
       });
 
       const startTextEl = row.querySelector("span.play-clip.start-clip");
-      const endTextEl   = row.querySelector("span.play-clip:not(.start-clip)");
+      const endTextEl = row.querySelector("span.play-clip:not(.start-clip)");
       if (startTextEl) startTextEl.textContent = secondsToHms(Number(data.start_time));
-      if (endTextEl)   endTextEl.textContent   = secondsToHms(Number(data.end_time));
+      if (endTextEl) endTextEl.textContent = secondsToHms(Number(data.end_time));
 
       if (activeClip?.clipId === clipId) {
         activeClip.start = Number(data.start_time);
-        activeClip.end   = Number(data.end_time);
+        activeClip.end = Number(data.end_time);
         startLoopWatcher();
       }
 
@@ -387,14 +410,14 @@ document.addEventListener("DOMContentLoaded", () => {
         "X-CSRF-Token": getCsrfToken(),
       },
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.id) {
-        favoriteButton.textContent = "お気に入り解除";
-        favoriteButton.classList.add("favorited");
+      .then(response => response.json())
+      .then(data => {
+        if (data.id) {
+          favoriteButton.textContent = "お気に入り解除";
+          favoriteButton.classList.add("favorited");
         }
       })
-    .catch(error => console.error("エラー:", error));
+      .catch(error => console.error("エラー:", error));
   }
 
   function unfavoriteVideo(videoId) {
@@ -404,14 +427,14 @@ document.addEventListener("DOMContentLoaded", () => {
         "X-CSRF-Token": getCsrfToken(),
       },
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message) {
-        favoriteButton.textContent = "お気に入り登録";
-        favoriteButton.classList.remove("favorited");
-      }
-    })
-    .catch(error => console.error("エラー:", error));
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          favoriteButton.textContent = "お気に入り登録";
+          favoriteButton.classList.remove("favorited");
+        }
+      })
+      .catch(error => console.error("エラー:", error));
   }
 
   function getCsrfToken() {
