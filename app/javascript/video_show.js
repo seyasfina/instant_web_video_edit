@@ -296,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const endTime = row.querySelector(".play-clip").dataset.end;
       form.elements["clip[start_time]"].value = secondsToHms(startTime);
       form.elements["clip[end_time]"].value = secondsToHms(endTime);
-      form.elements["clip[title]"].value = row.dataset.clipTitle.textContent;
+      form.elements["clip[title]"].value = row.querySelector(".clip-title")?.textContent || "";
     }
   }
 
