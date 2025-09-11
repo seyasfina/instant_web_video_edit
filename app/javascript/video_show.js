@@ -1,3 +1,5 @@
+import Sortable from "sortablejs"
+
 document.addEventListener("DOMContentLoaded", () => {
 
   let ytPlayer;
@@ -341,7 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const errs = [];
     if (Number.isNaN(startSec) || Number.isNaN(endSec)) errs.push("時刻の形式が不正です（mm:ss または hh:mm:ss）");
-    if (startSec >= endSec) errs.push("終了は開始より後である必要があります");
+    if (startSec > endSec) errs.push("終了は開始より後である必要があります");
 
     const errBox = form.querySelector(".errors");
     errBox.innerHTML = errs.map(m => `<p>${m}</p>`).join("");
@@ -437,6 +439,35 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(error => console.error("エラー:", error));
   }
 
+  function initClipSortable() {
+    if (!clipList || clipList.dataset.sortableInit === "1") return;
+    clipList.dataset.sortableInit = "1";
+
+    new Sortable(clipList, {
+      animation: 150,
+      handle: ".drag-handle",
+      ghostClass: "sort-ghost",
+      onEnd: () => {
+        const ids = Array.from(clipList.querySelectorAll("[data-clip-id]"))
+          .map(el => el.dataset.clipId);
+
+        fetch(`/videos/${videoId}/clips/reorder`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": getCsrfToken(),
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          body: JSON.stringify({ order: ids })
+        }).then(res => {
+          if (!res.ok) throw new Error(`Failed reorder: ${res.status}`);
+        }).catch(err => {
+          console.error("並び順の保存に失敗:", err);
+        });
+      }
+    });
+  }
+
   function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.content || "";
   }
@@ -450,4 +481,6 @@ document.addEventListener("DOMContentLoaded", () => {
   clipList?.addEventListener("click", handleUseCurrent);
   clipList?.addEventListener("submit", handleEditSubmit);
   favoriteButton?.addEventListener("click", toggleFavoriteButton);
+
+  initClipSortable();
 });

@@ -2,6 +2,9 @@
   <% clips.each do |clip| %>
     <div data-clip-id="<%= clip.id %>">
       <p class="clip-title" data-clip-title="<%= clip.title %>"><%= clip.title %></p>
+      <div class="row-head">
+        <span class="drag-handle" aria-label="並べ替えハンドル">⋮⋮</span>
+      </div>
       <p>
         Start:
         <span class="play-clip start-clip" data-start="<%= clip.start_time %>" data-end="<%= clip.end_time %>">

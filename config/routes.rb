@@ -16,7 +16,9 @@ Rails.application.routes.draw do
     collection do
       get :autocomplete
     end
-    resources :clips, only: [ :create, :update, :destroy ], defaults: { format: :json }
+    resources :clips, only: [ :create, :update, :destroy ], defaults: { format: :json } do
+      collection { patch :reorder, defaults: { format: :json } }
+    end
     resource :video_favorite, only: [ :create, :destroy ], defaults: { format: :json }
   end
 
