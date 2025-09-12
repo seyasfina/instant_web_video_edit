@@ -59,6 +59,6 @@ class VideosController < ApplicationController
   end
 
   def set_clips
-    @clips = @video.clips.where(user: current_user).includes(:user)
+    @clips = @video.clips.where(user: current_user).includes(:user).ordered
   end
 end
