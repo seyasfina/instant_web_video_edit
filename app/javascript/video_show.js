@@ -459,10 +459,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "X-Requested-With": "XMLHttpRequest"
           },
           body: JSON.stringify({ order: ids })
-        }).then(res => {
-          if (!res.ok) throw new Error(`Failed reorder: ${res.status}`);
-        }).catch(err => {
-          console.error("並び順の保存に失敗:", err);
         });
       }
     });
