@@ -1,7 +1,6 @@
 import Sortable from "sortablejs"
 
 document.addEventListener("DOMContentLoaded", () => {
-
   let ytPlayer;
   const clipForm = document.getElementById("clip-form");
   const clipList = document.getElementById("clip-list");
@@ -10,6 +9,197 @@ document.addEventListener("DOMContentLoaded", () => {
   let activeClip = null;
   const loopEnabledByClipId = new Set();
   const favoriteButton = document.getElementById("favorite-toggle");
+
+  if (document.body.classList.contains('logged-in') && videoId) {
+    checkForLocalClipsAndShowDialog();
+  } else {
+    loadLocalClips();
+  }
+
+  function collectLocalClipsBuckets() {
+    const PREFIX = "clips_";
+    const buckets = new Map();
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith(PREFIX)) continue;
+
+      const videoId = key.slice(PREFIX.length);
+      let arr;
+      try {
+        arr = JSON.parse(localStorage.getItem(key) || "[]");
+      } catch {
+        arr = [];
+      }
+      if (!Array.isArray(arr)) arr = [];
+
+      const seen = new Set();
+      const deduped = arr.filter(c => {
+        if (seen.has(c.local_id)) return false;
+        seen.add(c.local_id);
+        return true;
+      });
+
+      buckets.set(videoId, deduped);
+    }
+
+    return buckets;
+  }
+
+  function summarizeBuckets(buckets) {
+    const perVideo = [];
+    let total = 0;
+    for (const [videoId, clips] of buckets.entries()) {
+      perVideo.push({ videoId, count: clips.length });
+      total += clips.length;
+    }
+    perVideo.sort((a, b) => Number(a.videoId) - Number(b.videoId));
+    return { total, perVideo };
+  }
+
+  function rewriteBuckets(buckets) {
+    for (const [videoId, clips] of buckets.entries()) {
+      localStorage.setItem(`clips_${videoId}`, JSON.stringify(clips));
+    }
+  }
+
+  function clearBuckets(buckets) {
+    for (const videoId of buckets.keys()) {
+      localStorage.removeItem(`clips_${videoId}`);
+    }
+  }
+
+  function checkForLocalClipsAndShowDialog() {
+    const buckets = collectLocalClipsBuckets();
+    const { total, perVideo } = summarizeBuckets(buckets);
+    if (total <= 0) return;
+
+    const currentClips = buckets.get(videoId) || [];
+
+    const syncCurrent = async () => {
+      if (currentClips.length > 0) {
+        await syncClipsToServer(videoId, currentClips);
+        localStorage.removeItem(`clips_${videoId}`);
+      }
+    };
+
+    const syncAll = async () => {
+      for (const [vid, clips] of buckets.entries()) {
+        if (Array.isArray(clips) && clips.length > 0) {
+          await syncClipsToServer(vid, clips);
+        }
+        localStorage.removeItem(`clips_${vid}`);
+      }
+    };
+
+    const cancel = () => {
+      rewriteBuckets(buckets);
+    };
+
+    showSyncConfirmDialog(total, perVideo, {
+      onSyncCurrent: syncCurrent,
+      onSyncAll: syncAll,
+      onCancel: cancel
+    });
+  }
+
+  function showSyncConfirmDialog(clipCount, perVideo, { onSyncCurrent, onSyncAll, onCancel }) {
+    const dialog = document.createElement('div');
+    dialog.className = 'sync-dialog';
+    dialog.innerHTML = `
+      <div class="sync-dialog-content">
+        <h3>クリップの同期</h3>
+        <p>ログイン前に作成した ${clipCount} 個のクリップが見つかりました。</p>
+        <ul>
+          ${perVideo.map(v => `<li>Video ${v.videoId}: ${v.count}件</li>`).join("")}
+        </ul>
+        <p>どの範囲を同期しますか？</p>
+        <div class="sync-dialog-buttons">
+          <button class="sync-current">この動画だけ同期</button>
+          <button class="sync-all">全動画を同期</button>
+          <button class="sync-cancel">今はしない</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(dialog);
+
+    dialog.querySelector('.sync-current').addEventListener('click', () => {
+      dialog.remove();
+      onSyncCurrent?.();
+    });
+    dialog.querySelector('.sync-all').addEventListener('click', () => {
+      dialog.remove();
+      onSyncAll?.();
+    });
+    dialog.querySelector('.sync-cancel').addEventListener('click', () => {
+      dialog.remove();
+      onCancel?.();
+    });
+  }
+
+  function syncClipsToServer(videoId, clips) {
+    if (!Array.isArray(clips) || clips.length === 0) return Promise.resolve();
+    return fetch(`/videos/${videoId}/clips/sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrfToken()
+      },
+      body: JSON.stringify({
+       clips: clips.map(c => ({
+         video_id: videoId,
+         local_id: String(c.local_id),
+         title: c.title ?? "",
+         start_time: Number(c.start_time),
+         end_time: Number(c.end_time),
+       }))
+     })
+    })
+    .then(async (response) => {
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error || data?.message || '同期に失敗しました');
+      return data;
+    })
+    .then(data => {
+      showNotification(data.message || 'クリップを同期しました', 'success');
+      if (clipList) {
+        clipList.querySelectorAll('[data-local-clip-id]').forEach(el => el.remove());
+      }
+      data.synced_clips?.forEach(clip => {
+        if (String(clip.video_id) === clipForm?.dataset.videoId)
+          addClipToUI(clip);
+        });
+      return data;
+    })
+    .catch(error => {
+      showNotification('同期中にエラーが発生しました。', 'error');
+      throw error;
+    });
+  }
+
+  function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    notification.style.opacity = '1';
+    notification.style.transition = 'opacity 0.5s ease';
+    
+    document.querySelector('.video-container').insertAdjacentElement('afterbegin', notification);
+    
+    const fadeOutTimer = setTimeout(() => {
+      notification.style.opacity = '0';
+      
+      const removeTimer = setTimeout(() => {
+        notification.remove();
+      }, 500);
+      
+      notification.dataset.removeTimer = removeTimer;
+    }, 4500);
+    
+    notification.dataset.fadeOutTimer = fadeOutTimer;
+  }
 
   window.onYouTubeIframeAPIReady = function () {
     const playerEl = document.getElementById("player");
@@ -33,14 +223,23 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("set-start-time")?.addEventListener("click", () => {
       const startTime = ytPlayer.getCurrentTime();
       const startTimeToHms = secondsToHms(startTime);
-      document.getElementById("clip_start_time").value = startTimeToHms;
+      const startTimeInput = document.getElementById("clip_start_time");
+      if (startTimeInput) {
+        startTimeInput.value = startTimeToHms;
+      }
     });
 
-    document.getElementById("set-end-time")?.addEventListener("click", () => {
-      const endTime = ytPlayer.getCurrentTime();
-      const endTimeToHms = secondsToHms(endTime);
-      document.getElementById("clip_end_time").value = endTimeToHms;
-    });
+    const endTimeBtn = document.getElementById("set-end-time");
+    if (endTimeBtn) {
+      endTimeBtn.addEventListener("click", () => {
+        const endTime = ytPlayer.getCurrentTime();
+        const endTimeToHms = secondsToHms(endTime);
+        const endTimeInput = clipForm?.elements["clip[end_time]"];
+        if (endTimeInput) {
+          endTimeInput.value = endTimeToHms;
+        }
+      });
+    }
   }
 
   function secondsToHms(seconds) {
@@ -80,11 +279,117 @@ document.addEventListener("DOMContentLoaded", () => {
     const titleValue = clipForm.elements["clip[title]"].value;
     const startTimeToSeconds = hmsToSeconds(startTimeValue);
     const endTimeToSeconds = hmsToSeconds(endTimeValue);
-    let formData = new FormData();
-    formData.set("clip[start_time]", startTimeToSeconds);
-    formData.set("clip[end_time]", endTimeToSeconds);
-    formData.set("clip[title]", titleValue);
-    saveClip(formData);
+
+    const clipData = {
+      start_time: startTimeToSeconds,
+      end_time: endTimeToSeconds,
+      title: titleValue,
+      video_id: videoId,
+      created_at: new Date().toISOString()
+    };
+
+    if (isLoggedIn()) {
+      let formData = new FormData();
+      formData.set("clip[start_time]", startTimeToSeconds);
+      formData.set("clip[end_time]", endTimeToSeconds);
+      formData.set("clip[title]", titleValue);
+      saveClip(formData);
+    } else {
+      // Rails UJSの処理が終わった後に実行するため、setTimeoutを使用
+      setTimeout(() => {
+        saveClipToLocalStorage(clipData);
+        renderLocalClip(clipData);
+        resetForm();
+      }, 50);
+    }
+  }
+
+  function isLoggedIn() {
+    return document.body.classList.contains('logged-in');
+  }
+
+  function saveClipToLocalStorage(clipData) {
+    const storageKey = `clips_${videoId}`;
+    let clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    clipData.local_id = clips.length > 0 ? (Math.max(...clips.map(c => parseInt(c.local_id))) + 1) : 1;
+    clipData.position = String(clips.length);
+    clips.push(clipData);
+    localStorage.setItem(storageKey, JSON.stringify(clips));
+  }
+
+  function renderLocalClip(clipData) {
+    const clipElement = document.createElement('div');
+    clipElement.className = 'clip-item local';
+    clipElement.dataset.localClipId = clipData.local_id;
+    
+    const title = clipData.title;
+    const start = Number(clipData.start_time);
+    const end = Number(clipData.end_time);
+    
+    clipElement.innerHTML = `
+    <p class="clip-title" data-clip-title="${title}">${title}</p>
+    <div class="row-head">
+      <span class="drag-handle" aria-label="並べ替えハンドル">⋮⋮</span>
+    </div>
+    <p>
+      Start:
+      <span class="play-clip start-clip" data-start="${start}" data-end="${end}">
+        ${secondsToHms(start)}
+      </span>
+    </p>
+    <p>
+      End:
+      <span class="play-clip" data-start="${start}" data-end="${end}">
+        ${secondsToHms(end)}
+      </span>
+    </p>
+    <div>
+      <button class="play-clip start-clip" data-start="${start}" data-end="${end}" type="button">再生</button>
+      <button class="delete-clip">削除</button>
+      <button class="edit-clip">編集</button>
+      <button class="loop-btn" type="button">ループ</button>
+    </div>
+    <form class="clip-edit-form" hidden>
+      <div>
+        <label>タイトル</label>
+        <input name="clip[title]" value="">
+      </div>
+      <div>
+        <label>開始</label>
+        <input name="clip[start_time]" value="" />
+        <button type="button" class="use-current-start">▶ 今の位置を開始</button>
+      </div>
+      <div>
+        <label>終了</label>
+        <input name="clip[end_time]" value="" />
+        <button type="button" class="use-current-end">▶ 今の位置を終了</button>
+      </div>
+
+      <div class="errors" aria-live="polite"></div>
+
+      <div class="row">
+        <button type="submit">保存</button>
+        <button type="button" class="cancel-edit">キャンセル</button>
+      </div>
+    </form>
+    `;
+
+    clipList.appendChild(clipElement);
+  }
+
+  function deleteLocalClip(localId, videoId) {
+    const storageKey = `clips_${videoId}`;
+    let clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    clips = clips.filter(clip => String(clip.local_id) !== localId);
+    localStorage.setItem(storageKey, JSON.stringify(clips));
+  }
+
+  function loadLocalClips() {
+    if (!isLoggedIn()) {
+      const storageKey = `clips_${videoId}`;
+      const clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      clips.sort((a, b) => a.position - b.position).forEach(clipData => renderLocalClip(clipData));
+    }
   }
 
   function saveClip(formData) {
@@ -130,7 +435,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const newClip = document.createElement("div");
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
-    <p>${title}</p>
+    <p class="clip-title" data-clip-title="${title}">${title}</p>
+    <div class="row-head">
+      <span class="drag-handle" aria-label="並べ替えハンドル">⋮⋮</span>
+    </div>
     <p>
       Start:
       <span class="play-clip start-clip" data-start="${start}" data-end="${end}">
@@ -186,10 +494,15 @@ document.addEventListener("DOMContentLoaded", () => {
     //特定の要素をクリックした場合のみ処理を実行
     if (!e.target.classList.contains("delete-clip")) return;
 
-    const clipElement = e.target.closest("[data-clip-id]");
-    const clipId = clipElement.dataset.clipId;
+    const clipElement = e.target.closest("[data-clip-id]") || e.target.closest("[data-local-clip-id]");
+    const clipId = clipElement.dataset.clipId || clipElement.dataset.localClipId;
 
-    deleteClip(clipId, clipElement);
+    if (isLoggedIn()) {
+      deleteClip(clipId, clipElement);
+    } else {
+      deleteLocalClip(clipElement.dataset.localClipId, videoId);
+      clipElement.remove();
+    }
   }
 
   function deleteClip(clipId, clipElement) {
@@ -216,10 +529,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const start = parseFloat(e.target.dataset.start);
     const end = parseFloat(e.target.dataset.end);
-    //ブラウザの自動再生ポリシーにより、ユーザーが最初に動画プレイヤーをクリックする必要がある
     stopLoopWatcher();
-    const clipEl = e.target.closest("[data-clip-id]");
-    const clipId = clipEl?.dataset.clipId;
+    const clipEl = e.target.closest("[data-clip-id]") || e.target.closest("[data-local-clip-id]");
+    const clipId = clipEl?.dataset.clipId || clipEl?.dataset.localClipId;
     activeClip = { start, end, clipId };
     if (e.target.classList.contains("start-clip")) {
       ytPlayer.seekTo(start, true);
@@ -235,19 +547,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const btn = e.target.closest(".loop-btn");
     if (!btn) return;
 
-    const clipId = btn.closest("[data-clip-id]")?.dataset.clipId;
+    const clipId = btn.closest("[data-clip-id]")?.dataset.clipId || btn.closest("[data-local-clip-id]")?.dataset.localClipId;
     const willEnable = !loopEnabledByClipId.has(clipId);
 
     if (willEnable) {
       loopEnabledByClipId.add(clipId);
       btn.textContent = "ループ解除";
       btn.classList.add("is-looping");
-      if (activeClip?.clipId === clipId) startLoopWatcher();
+      startLoopWatcher();
     } else {
       loopEnabledByClipId.delete(clipId);
       btn.textContent = "ループ";
       btn.classList.remove("is-looping");
-      if (activeClip?.clipId === clipId) startLoopWatcher();
+      startLoopWatcher();
     }
   }
 
@@ -286,7 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const editButton = e.target.closest(".edit-clip");
     if (!editButton) return;
 
-    const row = editButton.closest("[data-clip-id]");
+    const row = editButton.closest("[data-clip-id]") || editButton.closest("[data-local-clip-id]");
     const form = row.querySelector(".clip-edit-form");
     const isOpen = !form.hidden;
 
@@ -326,13 +638,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function handleEditSubmit(e) {
+  function handleEditSubmit(e) {
     const form = e.target.closest(".clip-edit-form");
     if (!form) return;
     e.preventDefault();
 
-    const row = form.closest("[data-clip-id]");
-    const clipId = row.dataset.clipId;
+    const row = form.closest("[data-clip-id]") || form.closest("[data-local-clip-id]");
+    const clipId = row.dataset.clipId || row.dataset.localClipId;
 
     const title = form.querySelector('input[name="clip[title]"]').value.trim();
     const startHms = form.querySelector('input[name="clip[start_time]"]').value.trim();
@@ -352,6 +664,52 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
 
+    if (isLoggedIn()) {
+      submitEditToServer(row, clipId, title, startSec, endSec, form, errBox, submitBtn);
+    } else {
+      submitEditToLocal(row, clipId, title, startSec, endSec, form, errBox, submitBtn);
+    }
+  }
+
+  function submitEditToLocal(row, clipId, title, startSec, endSec, form, errBox, submitBtn) {
+    const storageKey = `clips_${videoId}`;
+    let clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const clipIndex = clips.findIndex(c => String(c.local_id) === clipId);
+    if (clipIndex === -1) {
+      errBox.innerHTML = `<p>クリップが見つかりません</p>`;
+      submitBtn.disabled = false;
+      return;
+    }
+
+    clips[clipIndex].title = title;
+    clips[clipIndex].start_time = startSec;
+    clips[clipIndex].end_time = endSec;
+    localStorage.setItem(storageKey, JSON.stringify(clips));
+
+    row.querySelector(".clip-title").textContent = title || "";
+    const spans = row.querySelectorAll(".play-clip");
+    spans.forEach(sp => {
+      sp.dataset.start = startSec;
+      sp.dataset.end = endSec;
+    });
+
+    const startTextEl = row.querySelector("span.play-clip.start-clip");
+    const endTextEl = row.querySelector("span.play-clip:not(.start-clip)");
+    if (startTextEl) startTextEl.textContent = secondsToHms(startSec);
+    if (endTextEl) endTextEl.textContent = secondsToHms(endSec);
+
+    if (activeClip?.clipId === clipId) {
+      activeClip.start = startSec;
+      activeClip.end = endSec;
+      startLoopWatcher();
+    }
+
+    errBox.innerHTML = "";
+    form.hidden = true;
+    submitBtn.disabled = false;
+  }
+
+  async function submitEditToServer(row, clipId, title, startSec, endSec, form, errBox, submitBtn) {
     try {
       const res = await fetch(`/videos/${videoId}/clips/${clipId}`, {
         method: "PATCH",
@@ -398,6 +756,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleFavoriteButton() {
+    if (!isLoggedIn()) {
+      alert("お気に入り機能を利用するにはログインが必要です。");
+      return;
+    }
     if (favoriteButton.classList.contains("favorited")) {
       unfavoriteVideo(videoId);
     } else {
@@ -448,18 +810,29 @@ document.addEventListener("DOMContentLoaded", () => {
       handle: ".drag-handle",
       ghostClass: "sort-ghost",
       onEnd: () => {
-        const ids = Array.from(clipList.querySelectorAll("[data-clip-id]"))
-          .map(el => el.dataset.clipId);
-
-        fetch(`/videos/${videoId}/clips/reorder`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": getCsrfToken(),
-            "X-Requested-With": "XMLHttpRequest"
-          },
-          body: JSON.stringify({ order: ids })
-        });
+        const nodes = clipList.querySelectorAll("[data-clip-id], [data-local-clip-id]");
+        const ids = Array.from(nodes).map(el => el.dataset.clipId ?? el.dataset.localClipId);
+        if (isLoggedIn()) {
+          fetch(`/videos/${videoId}/clips/reorder`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": getCsrfToken(),
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify({ order: ids })
+          });
+        } else {
+          const storageKey = `clips_${videoId}`;
+          let clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
+          clips.forEach(clip => {
+            const newPosition = ids.indexOf(String(clip.local_id));
+            if (newPosition !== -1) {
+              clip.position = newPosition;
+            }
+          });
+          localStorage.setItem(storageKey, JSON.stringify(clips));
+        }
       }
     });
   }
