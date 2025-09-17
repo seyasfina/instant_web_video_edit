@@ -10,7 +10,7 @@
   <%= javascript_importmap_tags %>
 </head>
 
-<body>
+<body class="<%= user_signed_in? ? 'logged-in' : 'logged-out' %>">
 
   <%= render 'layouts/header' %>
   <%= render 'layouts/flash_message' %>

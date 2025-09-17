@@ -32,9 +32,6 @@ class VideosController < ApplicationController
       history = current_user.video_histories.find_or_initialize_by(video_id: @video.id)
       history.last_played_at = Time.current
       history.save
-    else
-      redirect_to user_session_path, alert: "ログインが必要です"
-      return
     end
   end
 
