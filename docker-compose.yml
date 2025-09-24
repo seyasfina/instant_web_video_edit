@@ -7,6 +7,9 @@ services:
     volumes:
       - .:/app
       - gem_cache:/usr/local/bundle
+      - node_modules_cache:/app/node_modules
+      - /app/tmp
+      - /app/log
     environment:
       - DATABASE_URL=${DATABASE_URL}
     depends_on:
@@ -28,3 +31,4 @@ services:
 volumes:
   postgres_data:
   gem_cache:
+  node_modules_cache:
