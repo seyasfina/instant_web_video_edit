@@ -35,11 +35,11 @@ export default {
       "luxury",
       "dracula"
     ],
-    darkTheme: "dark", // デフォルトのダークテーマ
-    base: true, // ベーススタイルを適用
-    styled: true, // コンポーネントスタイルを適用
-    utils: true, // ユーティリティクラスを適用
-    prefix: "", // プレフィックスなし
-    logs: true, // ログを表示
+    darkTheme: "dark",
+    base: true,
+    styled: true,
+    utils: true,
+    prefix: "",
+    logs: true,
   },
 }
