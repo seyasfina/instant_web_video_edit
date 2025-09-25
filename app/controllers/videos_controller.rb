@@ -14,7 +14,7 @@ class VideosController < ApplicationController
     if existing_video
       redirect_to video_path(existing_video)
     else
-      @video = Video.new(video_params)
+      @video = temp_video
       if @video.save
         redirect_to @video
       else
@@ -24,7 +24,6 @@ class VideosController < ApplicationController
   end
 
   def index
-    @q = Video.ransack(params[:q])
     @videos = @q.result(distinct: true)
   end
 
@@ -57,6 +56,6 @@ class VideosController < ApplicationController
   end
 
   def set_clips
-    @clips = @video.clips.where(user: current_user).includes(:user)
+    @clips = @video.clips.where(user: current_user).includes(:user).ordered
   end
 end

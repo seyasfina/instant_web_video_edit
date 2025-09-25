@@ -11,12 +11,17 @@ Rails.application.routes.draw do
     get "privacy" => :privacy, as: :privacy
   end
 
-  resources :users, only: [ :show ]
+  resource :user, only: [ :show ], path: 'you'
   resources :videos, only: [ :new, :create, :index, :show ] do
     collection do
       get :autocomplete
     end
-    resources :clips, only: [ :create, :update, :destroy ], defaults: { format: :json }
+    resources :clips, only: [ :create, :update, :destroy ], defaults: { format: :json } do
+      collection do
+        patch :reorder, defaults: { format: :json }
+        post :sync, defaults: { format: :json }
+      end
+    end
     resource :video_favorite, only: [ :create, :destroy ], defaults: { format: :json }
   end
 

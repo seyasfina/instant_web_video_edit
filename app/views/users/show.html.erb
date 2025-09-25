@@ -1,50 +1,54 @@
-<div class="user-profile">
-  <div class="user-profile-header">
-    <h1>アカウント情報</h1>
-    <p>ユーザー名: <%= @user.name %></p>
-    <p>メールアドレス: <%= @user.email %></p>
-    <p>パスワード: ******</p>
-    <%= link_to "アカウント情報の編集", edit_user_registration_path %>
-  </div>
-  <div class="history_favorite">
-    <div class="history-favorite-box">
-      <h1>視聴履歴</h1>
-      <div class="history-favorite-list">
-        <% @video_histories.each do |vh| %>
-          <div class="history-favorite-item">
-            <%= link_to video_path(vh.video),
-                        id: "video-history-#{vh.video.id}",
-                        data: { video_id: vh.video.id },
-                        target: "_blank",
-                        class: "image-and-title" do %>
-              <% if vh.video.thumbnail_url.present? %>
-                <%= image_tag vh.video.thumbnail_url,
-                              alt: "#{vh.video.title} のサムネイル" %>
-              <% end %>
-              <div><%= vh.video.title %></div>
-            <% end %>
-          </div>
-        <% end %>
+<div class="container">
+  <div class="wide-flame">
+    <div class="user-profile">
+      <div class="user-profile-header">
+        <h1>アカウント情報</h1>
+        <p>ユーザー名: <%= @user.name %></p>
+        <p>メールアドレス: <%= @user.email %></p>
+        <p>パスワード: ******</p>
+        <%= link_to "アカウント情報の編集", edit_user_registration_path %>
       </div>
-    </div>
-    <div class="history-favorite-box">
-      <h1>お気に入り動画</h1>
-      <div class="history-favorite-list">
-        <% @video_favorites.each do |vf| %>
-          <div class="history-favorite-item">
-            <%= link_to video_path(vf.video),
-                        id: "video-favorite-#{vf.video.id}",
-                        data: { video_id: vf.video.id },
-                        target: "_blank",
-                        class: "image-and-title" do %>                        
-              <% if vf.video.thumbnail_url.present? %>
-                <%= image_tag vf.video.thumbnail_url,
-                              alt: "#{vf.video.title} のサムネイル" %>
-              <% end %>
-              <div><%= vf.video.title %></div>
+      <div class="history_favorite">
+        <div class="history-favorite-box">
+          <h1>視聴履歴</h1>
+          <div class="history-favorite-list">
+            <% @video_histories.each do |vh| %>
+              <div class="history-favorite-item">
+                <%= link_to video_path(vh.video),
+                            id: "video-history-#{vh.video.id}",
+                            data: { video_id: vh.video.id },
+                            target: "_blank",
+                            class: "image-and-title" do %>
+                  <% if vh.video.thumbnail_url.present? %>
+                    <%= image_tag vh.video.thumbnail_url,
+                                  alt: "#{vh.video.title} のサムネイル" %>
+                  <% end %>
+                  <div><%= vh.video.title %></div>
+                <% end %>
+              </div>
             <% end %>
           </div>
-        <% end %>
+        </div>
+        <div class="history-favorite-box">
+          <h1>お気に入り動画</h1>
+          <div class="history-favorite-list">
+            <% @video_favorites.each do |vf| %>
+              <div class="history-favorite-item">
+                <%= link_to video_path(vf.video),
+                            id: "video-favorite-#{vf.video.id}",
+                            data: { video_id: vf.video.id },
+                            target: "_blank",
+                            class: "image-and-title" do %>                        
+                  <% if vf.video.thumbnail_url.present? %>
+                    <%= image_tag vf.video.thumbnail_url,
+                                  alt: "#{vf.video.title} のサムネイル" %>
+                  <% end %>
+                  <div><%= vf.video.title %></div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
       </div>
     </div>
   </div>

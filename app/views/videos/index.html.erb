@@ -1,23 +1,27 @@
-<div class="video-index">
-  <% @videos.each do |video| %>
-    <% if video.title.present? %>
-      <%= link_to video_path(video), class: "image-and-title" do %>
-        <% if video.thumbnail_url.present? %>
-          <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
-          <% else %>
-            <div>サムネイルが表示できません。</div>
+<div class="container">
+  <div class="wide-flame">
+    <div class="video-index">
+      <% @videos.each do |video| %>
+        <% if video.title.present? %>
+          <%= link_to video_path(video), class: "image-and-title" do %>
+            <% if video.thumbnail_url.present? %>
+              <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
+              <% else %>
+                <div>サムネイルが表示できません。</div>
+              <% end %>
+              <div><%= video.title %></div>
           <% end %>
-          <div><%= video.title %></div>
-      <% end %>
-    <% else %>
-      <%= link_to video_path(video), class: "image-and-title" do %>
-        <% if video.thumbnail_url.present? %>
-          <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
         <% else %>
-          <div>サムネイルが表示できません。</div>  
+          <%= link_to video_path(video), class: "image-and-title" do %>
+            <% if video.thumbnail_url.present? %>
+              <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
+            <% else %>
+              <div>サムネイルが表示できません。</div>  
+            <% end %>
+            <div>タイトルが表示できません。</div>
+          <% end %>
         <% end %>
-        <div>タイトルが表示できません。</div>
       <% end %>
-    <% end %>
-  <% end %>
+    </div>
+  </div>
 </div>

@@ -18,7 +18,7 @@
 
   <div class="header_right">
     <% if user_signed_in? %>
-      <%= link_to 'マイページ', user_path(current_user), class: "header_link_button" %>
+      <%= link_to 'マイページ', user_path, class: "header_link_button" %>
       <%= link_to 'ログアウト', destroy_user_session_path, class: "header_link_button", method: :delete %>
     <% else %>
       <%= link_to 'サインアップ', new_user_registration_path, class: "header_link_button" %>

@@ -1,19 +1,25 @@
-<div class="video-show">
-  <div class="video-container">
-    <div class="video-player">
-      <iframe id="player" src="<%= @video.embed_url %>" frameborder="0" allowfullscreen></iframe>
+<div class="container">
+  <div class="wide-flame">
+    <div class="video-show">
+      <div class="video-container">
+        <div class="video-player">
+          <iframe id="player" src="<%= @video.embed_url %>" allowfullscreen></iframe>
+        </div>
+        <div>
+          <span>ブラウザの自動再生ポリシーによって動画が再生されない可能性があるため、動画プレイヤーをクリックしてから再生してください</span>
+        </div>
+        <div>
+          <%= render 'videos/favorite', video: @video %>
+          <label>
+            <input type="checkbox" id="stop-after-clip">
+            クリップ再生終了で自動停止する
+          </label>
+          <%= render 'clips/form', video: @video %>     
+        </div>
+      </div>
+      <div class="clips-container">
+        <%= render 'clips/sidebar', clips: @clips %>
+      </div>
     </div>
-    <div>
-      <span>ブラウザの自動再生ポリシーによって動画が再生されない可能性があるため、動画プレイヤーをクリックしてから再生してください</span>
-    </div>
-    <div>
-      <%= render 'videos/favorite', video: @video %>
-      <%= render 'clips/form', video: @video %>     
-    </div>
-  </div>
-  <div class="clips-container">
-    <%= render 'clips/sidebar', clips: @clips %>
   </div>
 </div>
-
-<%= javascript_include_tag 'video_show', type: 'module', defer: true %>

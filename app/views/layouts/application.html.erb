@@ -6,12 +6,11 @@
   <title>Instant Web Video Edit</title>
   <meta name="description" content="YouTube 動画をその場で編集し、タイムスタンプ単位でクリップ保存。">
   <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
   <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
   <%= javascript_importmap_tags %>
 </head>
 
-<body>
+<body class="<%= user_signed_in? ? 'logged-in' : 'logged-out' %>">
 
   <%= render 'layouts/header' %>
   <%= render 'layouts/flash_message' %>

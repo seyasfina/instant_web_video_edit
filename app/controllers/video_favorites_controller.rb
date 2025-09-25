@@ -24,15 +24,9 @@ class VideoFavoritesController < ApplicationController
 
   def set_video
     @video = Video.find(params[:video_id])
-    unless @video
-      render json: { error: "動画が見つかりません" }, status: :not_found
-    end
   end
 
   def set_video_favorite
     @video_favorite = current_user.video_favorites.find_by(video_id: params[:video_id])
-    unless @video_favorite
-      render json: { error: "お気に入り動画が見つかりません" }, status: :not_found
-    end
   end
 end

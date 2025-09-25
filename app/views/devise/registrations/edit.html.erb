@@ -1,51 +1,50 @@
 <div class="container">  
   <div class="signup-signin-page">
-    <h2>アカウント情報の編集</h2>
+    <div class="signup-signin-box">
+      <h2 class="signup-signin-word">アカウント情報の編集</h2>
 
-    <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "signup-signin-form" }) do |f| %>
-      <%= render "devise/shared/error_messages", resource: resource %>
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "signup-signin-form" }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
 
-      <div>
-        <%= f.label :name, "ユーザー名" %><br />
-        <%= f.text_field :name, autofocus: true %>
-      </div>
-
-      <div>
-        <%= f.label :email, "Eメール" %><br />
-        <%= f.email_field :email, autocomplete: "email" %>
-      </div>
-
-      <% unless resource.provider.present? %>
-      <div>
-        <div>
-          <%= f.label :password, "新しいパスワード" %><br />
-          <% if @minimum_password_length %>
-          <em>(<%= @minimum_password_length %>文字以上入力してください)</em>
-          <% end %><br />
-          <%= f.password_field :password, autocomplete: "new-password" %>
+        <div class="form-group">
+          <%= f.label :name, "ユーザー名", class: "label" %><br />
+          <%= f.text_field :name, class: "field", autofocus: true %>
         </div>
 
-        <div>
-          <%= f.label :password_confirmation, "新しいパスワード (再入力)" %><br />
-          <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
+        <div class="form-group">
+          <%= f.label :email, "Eメール", class: "label" %><br />
+          <%= f.email_field :email, class: "field", autocomplete: "email" %>
         </div>
-      
-        <div>
-          <%= f.label :current_password, "現在のパスワード" %> <i>(変更するには現在のパスワードが必要です)</i><br />
-          <%= f.password_field :current_password, autocomplete: "current-password" %>
+
+        <% unless resource.provider.present? %>
+          <div class="form-group">
+            <%= f.label :password, "新しいパスワード#{"(#{@minimum_password_length}文字以上)" if @minimum_password_length}", class: "label" %><br />
+            <%= f.password_field :password, class: "field", autocomplete: "new-password" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :password_confirmation, "新しいパスワード (再入力)", class: "label" %><br />
+            <%= f.password_field :password_confirmation, class: "field", autocomplete: "new-password" %>
+          </div>
+        
+          <div class="form-group">
+            <%= f.label :current_password, "現在のパスワード", class: "label" %><br />
+            <%= f.password_field :current_password, class: "field", autocomplete: "current-password" %>
+          </div>
+        <% end %>
+        
+        <div class="form-submit">
+          <%= f.submit "変更を保存", class: "submit" %>
         </div>
-      </div>
       <% end %>
-      
-      <div class="actions">
-        <%= f.submit "変更を保存" %>
+
+      <div class="form-submit">
+      <%= button_to "アカウントの削除", registration_path(resource_name), data: { confirm: "本当に削除しますか？", turbo_confirm: "本当に削除しますか" }, method: :delete %>
       </div>
-    <% end %>
 
-    <div>
-    <%= button_to "アカウントの削除", registration_path(resource_name), data: { confirm: "本当に削除しますか？", turbo_confirm: "本当に削除しますか" }, method: :delete %>
+      <div style="text-align: center; padding-top: 2rem;">
+      <%= link_to "前のページに戻る", request.referer || root_path %>
+      </div>
     </div>
-
-    <%= link_to "前のページに戻る", :back %>
   </div>
 </div>
