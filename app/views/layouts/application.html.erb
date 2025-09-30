@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,13 +11,17 @@
   <%= javascript_importmap_tags %>
 </head>
 
-<body class="<%= user_signed_in? ? 'logged-in' : 'logged-out' %>">
+<body class="flex flex-col text-base text-gray-800 bg-white h-screen <%= user_signed_in? ? 'logged-in' : 'logged-out' %>">
 
   <%= render 'layouts/header' %>
   <%= render 'layouts/flash_message' %>
 
-  <main>
-    <%= yield %>
+  <main class="flex flex-1 px-4 bg-sky-50">
+    <div class="flex w-full py-8">
+      <div class="flex flex-none basis-[95%] mx-auto bg-white">
+        <%= yield %>
+      </div>
+    </div>  
   </main>
 
   <%= render 'layouts/footer' %>
