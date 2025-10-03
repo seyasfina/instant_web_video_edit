@@ -1,2 +1,2 @@
-web: bin/rails server
 css: npm run watch-css
+# chrome: google-chrome --headless --remote-debugging-port=9222

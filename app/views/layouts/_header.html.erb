@@ -1,28 +1,30 @@
-<header>
-  <div class="header_left">
-    <%= link_to 'IWeVE', root_path, class: "header_link_button" %>
-  </div>
+<header class="flex-none bg-violet-950">
+  <div class="flex items-center justify-between">
+    <div class=" flex-none text-2xl">
+      <%= link_to 'IWeVE', root_path, class: "btn btn-ghost rounded-none text-white text-2xl" %>
+    </div>
 
-  <div class="header_center">
-    <%= search_form_for @q, url: videos_path, method: :get, html: { class: "header_search_form" } do |f| %>
-      <div data-controller="autocomplete" data-autocomplete-url-value="<%= autocomplete_videos_path %>" role="combobox">
-      <%= f.search_field :title_cont, placeholder: "キーワード", data: { autocomplete_target: 'input' } %>
-      <%= f.hidden_field :title, data: { autocomplete_target: 'hidden' } %>
-      <ul class="list-group" data-autocomplete-target="results"></ul>
-      </div>
-      <div>
-      <%= f.submit "" %>
-      </div>
-    <% end %>
-  </div>
+    <div class=" flex-1 max-w-xl md:max-w-2xl">
+      <%= search_form_for @q, url: videos_path, method: :get, html: { class: "header_search_form" } do |f| %>
+        <div data-controller="autocomplete" data-autocomplete-url-value="<%= autocomplete_videos_path %>" role="combobox">
+        <%= f.search_field :title_cont, placeholder: "キーワード", data: { autocomplete_target: 'input' } %>
+        <%= f.hidden_field :title, data: { autocomplete_target: 'hidden' } %>
+        <ul class="list-group" data-autocomplete-target="results"></ul>
+        </div>
+        <div>
+        <%= f.submit "" %>
+        </div>
+      <% end %>
+    </div>
 
-  <div class="header_right">
-    <% if user_signed_in? %>
-      <%= link_to 'マイページ', user_path, class: "header_link_button" %>
-      <%= link_to 'ログアウト', destroy_user_session_path, class: "header_link_button", method: :delete %>
-    <% else %>
-      <%= link_to 'サインアップ', new_user_registration_path, class: "header_link_button" %>
-      <%= link_to 'サインイン', new_user_session_path, class: "header_link_button" %>
-    <% end %>
+    <div class="flex flex-none">
+      <% if user_signed_in? %>
+        <%= link_to 'マイページ', user_path, class: "btn btn-ghost rounded-none text-white text-xl" %>
+        <%= link_to 'ログアウト', destroy_user_session_path, class: "btn btn-ghost rounded-none text-white text-xl", method: :delete %>
+      <% else %>
+        <%= link_to 'サインアップ', new_user_registration_path, class: "btn btn-ghost rounded-none text-white text-xl" %>
+        <%= link_to 'サインイン', new_user_session_path, class: "btn btn-ghost rounded-none text-white text-xl" %>
+      <% end %>
+    </div>
   </div>
 </header>
