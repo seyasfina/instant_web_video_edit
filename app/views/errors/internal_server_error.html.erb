@@ -1,14 +1,14 @@
-<div class="container">
-  <div class="wide-flame", style="align-items: center;">
-    <div class="static-error-page">
-      <div>
-        <h1>500エラー:サーバーエラー</h1>
-        <p>問題が発生しました</p>
-        <p>一時的にアクセスができない状況です</p>
-        <p>時間をおいて再度お試しください</p>
-        <p>問題が解決しない場合は下記のリンクからTopページにお戻り下さい</p>
-        <a href="/">Topに戻る</a>
-      </div>
-    </div>
+<div class="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-4xl flex-col items-center justify-center gap-8 px-4 py-12 sm:px-6 lg:px-8">
+  <div class="flex flex-col items-center gap-4 text-center">
+    <span class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-warning/10 text-warning">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-10 w-10">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a1 1 0 00.86 1.5h18.64a1 1 0 00.86-1.5L13.71 3.86a1 1 0 00-1.72 0z" />
+      </svg>
+    </span>
+    <h1 class="text-3xl font-bold text-base-content sm:text-4xl">500 - サーバーエラー</h1>
+    <p class="max-w-xl text-sm text-base-content/70">現在リクエストを処理できません。問題を調査していますので、時間をおいて再度アクセスしてください。</p>
+  </div>
+  <div class="flex flex-col gap-3 sm:flex-row">
+    <%= link_to "トップページに戻る", root_path, class: "btn btn-primary" %>
   </div>
 </div>

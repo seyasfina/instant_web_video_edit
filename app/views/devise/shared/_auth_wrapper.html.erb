@@ -1,0 +1,28 @@
+<% max_width_class = local_assigns.fetch(:max_width_class, 'max-w-md') %>
+<% badge = local_assigns[:badge] %>
+<% title = local_assigns[:title] %>
+<% subtitle = local_assigns[:subtitle] %>
+
+<div class="mx-auto flex min-h-[calc(100vh-12rem)] w-full <%= max_width_class %> items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+  <div class="w-full space-y-6 rounded-3xl border border-base-200/70 bg-base-100 p-8 shadow-xl shadow-base-200/60 sm:p-10">
+    <% if title.present? %>
+      <header class="space-y-2 text-center">
+        <% if badge.present? %>
+          <span class="text-xs font-semibold uppercase tracking-wide text-base-content/50"><%= badge %></span>
+        <% end %>
+        <h1 class="text-2xl font-bold text-base-content sm:text-3xl"><%= title %></h1>
+        <% if subtitle.present? %>
+          <p class="text-sm text-base-content/70"><%= subtitle %></p>
+        <% end %>
+      </header>
+    <% end %>
+
+    <%= render "devise/shared/error_messages", resource: resource %>
+
+    <div class="space-y-5">
+      <%= yield %>
+    </div>
+
+    <%= render "devise/shared/links" %>
+  </div>
+</div>

@@ -1,7 +1,24 @@
 <% if user_signed_in? %>
   <% if current_user.favorited?(video) %>
-    <button class="favorited" id="favorite-toggle" type="button">お気に入り解除</button>
+    <button class="btn btn-sm btn-neutral favorited h-10 min-h-0 gap-2" id="favorite-toggle" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+        <path d="M11.645 20.91 7.06 16.32A6 6 0 1 1 16.94 7h.001a6 6 0 0 1-.001 8.485l-4.585 4.585a.75.75 0 0 1-1.06 0Z" />
+      </svg>
+      お気に入り解除
+    </button>
   <% else %>
-    <button id="favorite-toggle" type="button">お気に入り登録</button>
+    <button class="btn btn-sm btn-primary h-10 min-h-0 gap-2" id="favorite-toggle" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+        <path d="M11.645 20.91 7.06 16.32A6 6 0 1 1 16.94 7h.001a6 6 0 0 1-.001 8.485l-4.585 4.585a.75.75 0 0 1-1.06 0Z" />
+      </svg>
+      お気に入り登録
+    </button>
+  <% end %>
+<% else %>
+  <%= link_to new_user_session_path, class: "btn btn-sm btn-primary h-10 min-h-0 gap-2", data: { turbo: false } do %>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+      <path d="M12 21.35 10.55 20C5.4 15.36 2 12.27 2 8.5A4.5 4.5 0 0 1 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.54 4 21 6.46 21 9.5c0 3.77-3.4 6.86-8.55 11.5L12 21.35Z" />
+    </svg>
+    お気に入り登録 (ログイン)
   <% end %>
 <% end %>

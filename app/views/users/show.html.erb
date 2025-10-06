@@ -1,55 +1,89 @@
-<div class="container">
-  <div class="wide-flame">
-    <div class="user-profile">
-      <div class="user-profile-header">
-        <h1>アカウント情報</h1>
-        <p>ユーザー名: <%= @user.name %></p>
-        <p>メールアドレス: <%= @user.email %></p>
-        <p>パスワード: ******</p>
-        <%= link_to "アカウント情報の編集", edit_user_registration_path %>
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
+  <section class="rounded-3xl border border-base-200/70 bg-base-100 p-6 shadow-lg shadow-primary/10 sm:p-8">
+    <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <span class="text-xs font-semibold uppercase tracking-wide text-base-content/50">Account</span>
+        <h1 class="mt-1 text-2xl font-bold text-base-content sm:text-3xl">アカウント情報</h1>
       </div>
-      <div class="history_favorite">
-        <div class="history-favorite-box">
-          <h1>視聴履歴</h1>
-          <div class="history-favorite-list">
-            <% @video_histories.each do |vh| %>
-              <div class="history-favorite-item">
-                <%= link_to video_path(vh.video),
-                            id: "video-history-#{vh.video.id}",
-                            data: { video_id: vh.video.id },
-                            target: "_blank",
-                            class: "image-and-title" do %>
-                  <% if vh.video.thumbnail_url.present? %>
-                    <%= image_tag vh.video.thumbnail_url,
-                                  alt: "#{vh.video.title} のサムネイル" %>
-                  <% end %>
-                  <div><%= vh.video.title %></div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-        <div class="history-favorite-box">
-          <h1>お気に入り動画</h1>
-          <div class="history-favorite-list">
-            <% @video_favorites.each do |vf| %>
-              <div class="history-favorite-item">
-                <%= link_to video_path(vf.video),
-                            id: "video-favorite-#{vf.video.id}",
-                            data: { video_id: vf.video.id },
-                            target: "_blank",
-                            class: "image-and-title" do %>                        
-                  <% if vf.video.thumbnail_url.present? %>
-                    <%= image_tag vf.video.thumbnail_url,
-                                  alt: "#{vf.video.title} のサムネイル" %>
-                  <% end %>
-                  <div><%= vf.video.title %></div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        </div>
+      <%= link_to "アカウント情報の編集", edit_user_registration_path, class: "btn btn-outline btn-sm sm:btn-md" %>
+    </header>
+    <dl class="mt-6 grid gap-3 text-base text-base-content/80 sm:grid-cols-2">
+      <div class="rounded-2xl bg-base-200/60 px-4 py-3">
+        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">ユーザー名</dt>
+        <dd class="mt-1 text-lg font-medium text-base-content"><%= @user.name %></dd>
       </div>
-    </div>
+      <div class="rounded-2xl bg-base-200/60 px-4 py-3">
+        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">メールアドレス</dt>
+        <dd class="mt-1 text-lg font-medium text-base-content"><%= @user.email %></dd>
+      </div>
+      <div class="rounded-2xl bg-base-200/40 px-4 py-3 sm:col-span-2">
+        <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/60">パスワード</dt>
+        <dd class="mt-1 font-medium tracking-widest text-base-content/70">••••••</dd>
+      </div>
+    </dl>
+  </section>
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <section class="rounded-3xl border border-base-200/70 bg-base-100 p-6 shadow-md sm:p-7">
+      <header class="flex items-center justify-between gap-2">
+        <h2 class="text-xl font-semibold text-base-content">視聴履歴</h2>
+        <span class="text-sm text-base-content/60"><%= @video_histories.size %> 件</span>
+      </header>
+      <div class="mt-4 space-y-3">
+        <% @video_histories.each do |vh| %>
+          <%= link_to video_path(vh.video),
+                      id: "video-history-#{vh.video.id}",
+                      data: { video_id: vh.video.id },
+                      target: "_blank",
+                      class: "group flex items-center gap-4 rounded-2xl border border-transparent bg-base-200/40 p-3 transition hover:border-primary/50 hover:bg-base-200/70" do %>
+            <% if vh.video.thumbnail_url.present? %>
+              <%= image_tag vh.video.thumbnail_url,
+                            alt: "#{vh.video.title} のサムネイル",
+                            class: "h-16 w-28 flex-shrink-0 rounded-xl object-cover" %>
+            <% else %>
+              <div class="flex h-16 w-28 flex-shrink-0 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/60">No Image</div>
+            <% end %>
+            <div class="flex flex-col gap-1">
+              <p class="line-clamp-2 font-medium text-base-content group-hover:text-primary"><%= vh.video.title %></p>
+              <span class="text-xs text-base-content/60">閲覧日: <%= l(vh.created_at, format: :short) %></span>
+            </div>
+          <% end %>
+        <% end %>
+        <% if @video_histories.blank? %>
+          <p class="rounded-2xl bg-base-200/40 px-4 py-6 text-center text-sm text-base-content/60">視聴履歴はまだありません。</p>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="rounded-3xl border border-base-200/70 bg-base-100 p-6 shadow-md sm:p-7">
+      <header class="flex items-center justify-between gap-2">
+        <h2 class="text-xl font-semibold text-base-content">お気に入り動画</h2>
+        <span class="text-sm text-base-content/60"><%= @video_favorites.size %> 件</span>
+      </header>
+      <div class="mt-4 space-y-3">
+        <% @video_favorites.each do |vf| %>
+          <%= link_to video_path(vf.video),
+                      id: "video-favorite-#{vf.video.id}",
+                      data: { video_id: vf.video.id },
+                      target: "_blank",
+                      class: "group flex items-center gap-4 rounded-2xl border border-transparent bg-base-200/40 p-3 transition hover:border-secondary/40 hover:bg-base-200/70" do %>
+            <% if vf.video.thumbnail_url.present? %>
+              <%= image_tag vf.video.thumbnail_url,
+                            alt: "#{vf.video.title} のサムネイル",
+                            class: "h-16 w-28 flex-shrink-0 rounded-xl object-cover" %>
+            <% else %>
+              <div class="flex h-16 w-28 flex-shrink-0 items-center justify-center rounded-xl bg-base-200 text-sm text-base-content/60">No Image</div>
+            <% end %>
+            <div class="flex flex-col gap-1">
+              <p class="line-clamp-2 font-medium text-base-content group-hover:text-secondary"><%= vf.video.title %></p>
+              <span class="text-xs text-base-content/60">登録日: <%= l(vf.created_at, format: :short) %></span>
+            </div>
+          <% end %>
+        <% end %>
+        <% if @video_favorites.blank? %>
+          <p class="rounded-2xl bg-base-200/40 px-4 py-6 text-center text-sm text-base-content/60">お気に入りはまだありません。</p>
+        <% end %>
+      </div>
+    </section>
   </div>
 </div>

@@ -1,27 +1,61 @@
-<div class="container">
-  <div class="wide-flame">
-    <div class="video-index">
-      <% @videos.each do |video| %>
-        <% if video.title.present? %>
-          <%= link_to video_path(video), class: "image-and-title" do %>
-            <% if video.thumbnail_url.present? %>
-              <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
-              <% else %>
-                <div>サムネイルが表示できません。</div>
-              <% end %>
-              <div><%= video.title %></div>
-          <% end %>
-        <% else %>
-          <%= link_to video_path(video), class: "image-and-title" do %>
-            <% if video.thumbnail_url.present? %>
-              <%= image_tag video.thumbnail_url, alt: "#{video.title} のサムネイル" %>
-            <% else %>
-              <div>サムネイルが表示できません。</div>  
-            <% end %>
-            <div>タイトルが表示できません。</div>
-          <% end %>
-        <% end %>
-      <% end %>
+<div class="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
+  <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <span class="text-xs font-semibold uppercase tracking-wide text-base-content/50">Library</span>
+      <h1 class="text-3xl font-bold text-base-content sm:text-4xl">動画一覧</h1>
+      <p class="mt-2 text-sm text-base-content/70">最近取り込んだ動画から、お気に入りの素材まで。クリックして編集画面へ移動できます。</p>
     </div>
+    <%= link_to "新しい動画を追加", new_video_path, class: "btn btn-primary btn-sm sm:btn-md" %>
+  </header>
+
+  <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <% @videos.each do |video| %>
+      <%= link_to video_path(video), class: "group flex flex-col overflow-hidden rounded-3xl border border-base-200/60 bg-base-100 shadow-lg transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl" do %>
+        <div class="relative aspect-video w-full overflow-hidden">
+          <% if video.thumbnail_url.present? %>
+            <%= image_tag video.thumbnail_url,
+                          alt: "#{video.title.presence || 'サムネイルなし'}",
+                          class: "h-full w-full object-cover transition duration-200 group-hover:scale-105" %>
+          <% else %>
+            <div class="flex h-full w-full items-center justify-center bg-base-200 text-sm text-base-content/50">サムネイルなし</div>
+          <% end %>
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <span class="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-9A2.25 2.25 0 002.25 5.25v13.5A2.25 2.25 0 004.5 21h9a2.25 2.25 0 002.25-2.25V15" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9l6 3-6 3" />
+            </svg>
+            Edit
+          </span>
+        </div>
+        <div class="flex flex-1 flex-col gap-2 px-5 py-4">
+          <h2 class="line-clamp-2 text-lg font-semibold text-base-content group-hover:text-primary"><%= video.title.presence || "タイトル未設定" %></h2>
+          <div class="flex flex-wrap items-center gap-3 text-xs text-base-content/60">
+            <% if video.created_at.present? %>
+              <span class="inline-flex items-center gap-2 rounded-full bg-base-200/70 px-3 py-1">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+                  <path d="M6 2a1 1 0 0 1 1 1v1h6V3a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3a1 1 0 0 1 1-1Zm9 6H5v7h10V8Z" />
+                </svg>
+                <span><%= l(video.created_at.to_date, format: :short) %></span>
+              </span>
+            <% end %>
+            <% if video.users_who_favorited.exists? %>
+              <span class="inline-flex items-center gap-2 rounded-full bg-secondary/15 px-3 py-1 text-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                  <path d="M11.645 20.91 7.06 16.32A6 6 0 1 1 16.94 7h.001a6 6 0 0 1-.001 8.485l-4.585 4.585a.75.75 0 0 1-1.06 0Z" />
+                </svg>
+                <span><%= video.users_who_favorited.count %> 人がお気に入り</span>
+              </span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+    <% if @videos.blank? %>
+      <div class="flex flex-col items-center justify-center rounded-3xl border border-dashed border-base-300 bg-base-100/80 px-6 py-12 text-center">
+        <p class="text-base font-medium text-base-content/70">まだ動画が登録されていません。</p>
+        <%= link_to "最初の動画を追加", new_video_path, class: "btn btn-primary btn-sm sm:btn-md mt-4" %>
+      </div>
+    <% end %>
   </div>
 </div>

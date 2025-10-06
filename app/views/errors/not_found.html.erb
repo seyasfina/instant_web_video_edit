@@ -1,14 +1,15 @@
-<div class="container">
-  <div class="wide-flame", style="align-items: center;">
-    <div class="static-error-page">
-      <div>
-        <h1>404エラー:ページが見つかりません</h1>
-        <p>お探しのページは見つかりませんでした。以下の原因が考えられます</p>
-        <p>・ページが削除または移動された</p>
-        <p>・ご指定のURLが間違っていた</p>
-        <p>問題が解決しない場合は下記のリンクからTopページにお戻り下さい</p>
-        <a href="/">Topに戻る</a>
-      </div>
-    </div>
+<div class="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-4xl flex-col items-center justify-center gap-8 px-4 py-12 sm:px-6 lg:px-8">
+  <div class="flex flex-col items-center gap-4 text-center">
+    <span class="inline-flex h-20 w-20 items-center justify-center rounded-full bg-error/10 text-error">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-10 w-10">
+        <path d="M12 9v4m0 4h.01M4.93 4.93l14.14 14.14M12 5a7 7 0 100 14 7 7 0 000-14z" />
+      </svg>
+    </span>
+    <h1 class="text-3xl font-bold text-base-content sm:text-4xl">404 - ページが見つかりません</h1>
+    <p class="max-w-xl text-sm text-base-content/70">お探しのページは削除されたか、URLが変更された可能性があります。以下のリンクからトップページに戻るか、検索機能をご利用ください。</p>
+  </div>
+  <div class="flex flex-col gap-3 sm:flex-row">
+    <%= link_to "トップページに戻る", root_path, class: "btn btn-primary" %>
+    <%= link_to "動画を探す", videos_path, class: "btn btn-outline" %>
   </div>
 </div>

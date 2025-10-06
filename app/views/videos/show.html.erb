@@ -1,25 +1,95 @@
-<div class="container">
-  <div class="wide-flame">
-    <div class="video-show">
-      <div class="video-container">
-        <div class="video-player">
-          <iframe id="player" src="<%= @video.embed_url %>" allowfullscreen></iframe>
-        </div>
-        <div>
-          <span>ブラウザの自動再生ポリシーによって動画が再生されない可能性があるため、動画プレイヤーをクリックしてから再生してください</span>
-        </div>
-        <div>
-          <%= render 'videos/favorite', video: @video %>
-          <label>
-            <input type="checkbox" id="stop-after-clip">
-            クリップ再生終了で自動停止する
-          </label>
-          <%= render 'clips/form', video: @video %>     
-        </div>
-      </div>
-      <div class="clips-container">
-        <%= render 'clips/sidebar', clips: @clips %>
-      </div>
+<% video_title = @video.title.presence || "動画情報を取得しています" %>
+
+<div class="video-container flex w-full flex-col gap-8 px-4 py-3 sm:px-6 lg:px-10 xl:px-14 2xl:px-16">
+  <header class="flex flex-col gap-2">
+    <div class="flex min-w-0 flex-col gap-1.5">
+      <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Video</span>
+      <h1 class="truncate text-2xl font-bold text-base-content lg:text-3xl"><%= video_title %></h1>
     </div>
+    <% if @video.url.present? %>
+      <%= link_to "YouTubeで開く", @video.url, target: "_blank", rel: "noopener", class: "btn btn-youtube w-full sm:w-fit" %>
+    <% end %>
+  </header>
+
+  <div class="grid grid-cols-1 gap-6 xl:gap-8 2xl:gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)]">
+    <section class="card border border-base-200 bg-base-100 shadow-lg">
+      <div class="card-body gap-5 p-4 sm:p-6">
+        <div class="aspect-video overflow-hidden bg-base-200">
+          <iframe class="h-full w-full border-0" id="player" src="<%= @video.embed_url %>" allowfullscreen></iframe>
+        </div>
+        <div class="space-y-5">
+          <div class="rounded-3xl border border-base-200/70 bg-base-100/85 px-5 py-6 shadow-md shadow-base-300/40 backdrop-blur">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div class="flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="mt-0.5 h-6 w-6 text-primary">
+                  <path d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm-.75-9.25a.75.75 0 0 1 1.5 0v4.5a.75.75 0 0 1-1.5 0v-4.5ZM10 6a.875.875 0 1 1 0 1.75A.875.875 0 0 1 10 6Z" />
+                </svg>
+                <div class="space-y-1">
+                  <p class="text-sm font-medium text-base-content sm:text-base">ブラウザの自動再生ポリシーで再生されない場合があります。</p>
+                  <p class="text-xs text-base-content/70 sm:text-sm">プレイヤーをクリックしてから再生してください。</p>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center justify-start gap-3 lg:justify-end">
+                <div class="flex items-center gap-2 rounded-full bg-base-200/70 px-3 py-1 text-xs font-medium text-base-content/80 sm:text-sm whitespace-nowrap">
+                  <span>ヒント</span>
+                  <span>再生できない時は再読み込みを試してください。</span>
+                </div>
+                <div>
+                  <%= render 'videos/favorite', video: @video %>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 flex flex-wrap items-center gap-3 text-xs sm:text-sm text-base-content/70">
+              <% if @video.created_at.present? %>
+                <span class="inline-flex items-center gap-2 rounded-full bg-base-200/80 px-3 py-1 text-base-content">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4 text-primary">
+                    <path d="M6 2a1 1 0 0 1 1 1v1h6V3a1 1 0 1 1 2 0v1h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V3a1 1 0 0 1 1-1Zm9 6H5v7h10V8Z" />
+                  </svg>
+                  <span>登録日 <%= l(@video.created_at.to_date, format: :long) %></span>
+                </span>
+              <% end %>
+              <% if @video.users_who_favorited.exists? %>
+                <span class="inline-flex items-center gap-2 rounded-full bg-secondary/15 px-3 py-1 text-secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                    <path d="M11.645 20.91 7.06 16.32A6 6 0 1 1 16.94 7h.001a6 6 0 0 1-.001 8.485l-4.585 4.585a.75.75 0 0 1-1.06 0Z" />
+                  </svg>
+                  <span>お気に入り <%= @video.users_who_favorited.count %> 人</span>
+                </span>
+              <% end %>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="flex flex-col gap-6 lg:gap-8">
+      <section class="card overflow-hidden border border-base-200 bg-base-100 shadow-lg">
+        <div class="collapse collapse-arrow">
+          <input type="checkbox" id="clip-create-toggle" class="peer" checked>
+          <div class="collapse-title flex items-center justify-between gap-4 px-4 py-4 text-left sm:px-6 sm:py-5">
+            <div>
+              <h2 class="text-lg font-semibold text-base-content">クリップを作成</h2>
+              <p class="mt-1 text-sm text-base-content/70">動画の現在位置から開始・終了を設定してクリップを保存できます。</p>
+            </div>
+            <span class="hidden text-xs text-base-content/60 sm:block">クリックで折りたたみ</span>
+          </div>
+          <div class="collapse-content space-y-4 px-4 pb-5 pt-0 sm:px-6 sm:pb-6">
+            <%= render 'clips/form', video: @video %>
+          </div>
+        </div>
+      </section>
+
+      <section class="card border border-base-200 bg-base-100 shadow-lg">
+        <div class="card-body gap-4 p-4 sm:p-6">
+          <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 class="text-lg font-semibold text-base-content">クリップ一覧</h2>
+            <span id="clip-count" class="badge badge-outline w-fit text-xs text-base-content/70"></span>
+          </div>
+          <%= render 'clips/sidebar', clips: @clips %>
+        </div>
+      </section>
+    </aside>
   </div>
 </div>

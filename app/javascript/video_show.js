@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let ytPlayer;
   const clipForm = document.getElementById("clip-form");
   const clipList = document.getElementById("clip-list");
+  const clipCountBadge = document.getElementById("clip-count");
   const videoId = clipForm?.dataset.videoId;
   let loopTimer = null;
   let activeClip = null;
@@ -14,6 +15,12 @@ document.addEventListener("DOMContentLoaded", () => {
     checkForLocalClipsAndShowDialog();
   } else {
     loadLocalClips();
+  }
+
+  function updateClipCount() {
+    if (!clipList || !clipCountBadge) return;
+    const count = clipList.querySelectorAll('.clip-item').length;
+    clipCountBadge.textContent = `${count} 件`;
   }
 
   function collectLocalClipsBuckets() {
@@ -318,63 +325,79 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderLocalClip(clipData) {
-    const clipElement = document.createElement('div');
-    clipElement.className = 'clip-item local';
+    const clipElement = document.createElement('article');
+    clipElement.className = 'clip-item group rounded-2xl border border-base-200 bg-base-100 p-4 shadow-sm transition hover:border-primary/60 hover:shadow-md local';
     clipElement.dataset.localClipId = clipData.local_id;
-    
-    const title = clipData.title;
+
+    const title = clipData.title || '';
     const start = Number(clipData.start_time);
     const end = Number(clipData.end_time);
-    
+
     clipElement.innerHTML = `
-    <p class="clip-title" data-clip-title="${title}">${title}</p>
-    <div class="row-head">
-      <span class="drag-handle" aria-label="並べ替えハンドル">⋮⋮</span>
-    </div>
-    <p>
-      Start:
-      <span class="play-clip start-clip" data-start="${start}" data-end="${end}">
-        ${secondsToHms(start)}
-      </span>
-    </p>
-    <p>
-      End:
-      <span class="play-clip" data-start="${start}" data-end="${end}">
-        ${secondsToHms(end)}
-      </span>
-    </p>
-    <div>
-      <button class="play-clip start-clip" data-start="${start}" data-end="${end}" type="button">再生</button>
-      <button class="delete-clip">削除</button>
-      <button class="edit-clip">編集</button>
-      <button class="loop-btn" type="button">ループ</button>
-    </div>
-    <form class="clip-edit-form" hidden>
-      <div>
-        <label>タイトル</label>
-        <input name="clip[title]" value="">
-      </div>
-      <div>
-        <label>開始</label>
-        <input name="clip[start_time]" value="" />
-        <button type="button" class="use-current-start">▶ 今の位置を開始</button>
-      </div>
-      <div>
-        <label>終了</label>
-        <input name="clip[end_time]" value="" />
-        <button type="button" class="use-current-end">▶ 今の位置を終了</button>
+      <div class="flex flex-col gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-3">
+        <div class="flex min-w-0 flex-col gap-2">
+          <p class="clip-title break-words text-base font-semibold text-base-content" data-clip-title="${title}">${title}</p>
+          <dl class="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-2 text-sm text-base-content/70 sm:grid-cols-[auto_minmax(0,1fr)]">
+            <dt class="font-medium text-base-content">開始</dt>
+            <dd class="min-w-0">
+              <span class="play-clip start-clip inline-flex items-center justify-center rounded-lg bg-base-200 px-3 py-1 font-mono text-sm tracking-tight text-base-content w-full sm:w-auto" data-start="${start}" data-end="${end}">
+                <span class="tabular-nums">${secondsToHms(start)}</span>
+              </span>
+            </dd>
+            <dt class="font-medium text-base-content">終了</dt>
+            <dd class="min-w-0">
+              <span class="play-clip inline-flex items-center justify-center rounded-lg bg-base-200 px-3 py-1 font-mono text-sm tracking-tight text-base-content w-full sm:w-auto" data-start="${start}" data-end="${end}">
+                <span class="tabular-nums">${secondsToHms(end)}</span>
+              </span>
+            </dd>
+          </dl>
+        </div>
+        <div class="drag-handle group/handle flex cursor-grab select-none items-center justify-end rounded-xl px-3 py-2 text-sm font-medium text-base-content/70 transition hover:bg-base-200 active:cursor-grabbing sm:h-full sm:min-h-[3.5rem]" role="button" tabindex="0" aria-label="ドラッグで並べ替え">
+          <span class="hidden text-xs uppercase tracking-wide text-base-content/50 sm:inline">ドラッグ</span>
+          <span aria-hidden="true" class="ml-2 text-base">⋮⋮</span>
+        </div>
       </div>
 
-      <div class="errors" aria-live="polite"></div>
-
-      <div class="row">
-        <button type="submit">保存</button>
-        <button type="button" class="cancel-edit">キャンセル</button>
+      <div class="mt-3 grid gap-2 sm:grid-cols-2">
+        <button class="play-clip start-clip btn btn-sm btn-primary w-full sm:w-auto" data-start="${start}" data-end="${end}" type="button">再生</button>
+        <button class="loop-btn btn btn-sm btn-outline w-full sm:w-auto" type="button">ループ</button>
+        <button class="edit-clip btn btn-sm btn-outline w-full sm:w-auto" type="button">編集</button>
+        <button class="delete-clip btn btn-sm btn-outline btn-error w-full sm:w-auto" type="button">削除</button>
       </div>
-    </form>
+
+      <form class="clip-edit-form mt-4 space-y-5 rounded-xl border border-base-200 bg-base-100 p-4 sm:p-5" hidden>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-base-content">タイトル</label>
+          <input name="clip[title]" value="" class="input input-bordered w-full" />
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-semibold text-base-content">開始</label>
+            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+              <input name="clip[start_time]" value="" class="input input-bordered w-full" />
+              <button type="button" class="btn btn-outline btn-sm h-10 min-h-0 use-current-start w-full sm:w-auto">▶ 今の位置</button>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-semibold text-base-content">終了</label>
+            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+              <input name="clip[end_time]" value="" class="input input-bordered w-full" />
+              <button type="button" class="btn btn-outline btn-sm h-10 min-h-0 use-current-end w-full sm:w-auto">▶ 今の位置</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="errors space-y-1 text-sm text-error" aria-live="polite"></div>
+
+        <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+          <button type="submit" class="btn btn-primary btn-sm w-full sm:w-auto">保存</button>
+          <button type="button" class="cancel-edit btn btn-ghost btn-sm w-full sm:w-auto">キャンセル</button>
+        </div>
+      </form>
     `;
 
     clipList.appendChild(clipElement);
+    updateClipCount();
   }
 
   function deleteLocalClip(localId, videoId) {
@@ -390,6 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
       clips.sort((a, b) => a.position - b.position).forEach(clipData => renderLocalClip(clipData));
     }
+    updateClipCount();
   }
 
   function saveClip(formData) {
@@ -429,59 +453,76 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addClipToUI(data) {
-    const title = data.title;
+    const title = data.title || '';
     const start = Number(data.start_time);
     const end = Number(data.end_time);
-    const newClip = document.createElement("div");
+    const newClip = document.createElement("article");
+    newClip.className = 'clip-item group rounded-2xl border border-base-200 bg-base-100 p-4 shadow-sm transition hover:border-primary/60 hover:shadow-md';
     newClip.dataset.clipId = data.id;
     newClip.innerHTML = `
-    <p class="clip-title" data-clip-title="${title}">${title}</p>
-    <div class="row-head">
-      <span class="drag-handle" aria-label="並べ替えハンドル">⋮⋮</span>
-    </div>
-    <p>
-      Start:
-      <span class="play-clip start-clip" data-start="${start}" data-end="${end}">
-        ${secondsToHms(start)}
-      </span>
-    </p>
-    <p>
-      End:
-      <span class="play-clip" data-start="${start}" data-end="${end}">
-        ${secondsToHms(end)}
-      </span>
-    </p>
-    <div>
-      <button class="play-clip start-clip" data-start="${start}" data-end="${end}" type="button">再生</button>
-      <button class="delete-clip">削除</button>
-      <button class="edit-clip">編集</button>
-      <button class="loop-btn" type="button">ループ</button>
-    </div>
-    <form class="clip-edit-form" hidden>
-      <div>
-        <label>タイトル</label>
-        <input name="clip[title]" value="">
-      </div>
-      <div>
-        <label>開始</label>
-        <input name="clip[start_time]" value="" />
-        <button type="button" class="use-current-start">▶ 今の位置を開始</button>
-      </div>
-      <div>
-        <label>終了</label>
-        <input name="clip[end_time]" value="" />
-        <button type="button" class="use-current-end">▶ 今の位置を終了</button>
+      <div class="flex flex-col gap-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-3">
+        <div class="flex min-w-0 flex-col gap-2">
+          <p class="clip-title break-words text-base font-semibold text-base-content" data-clip-title="${title}">${title}</p>
+          <dl class="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-2 text-sm text-base-content/70 sm:grid-cols-[auto_minmax(0,1fr)]">
+            <dt class="font-medium text-base-content">開始</dt>
+            <dd class="min-w-0">
+              <span class="play-clip start-clip inline-flex items-center justify-center rounded-lg bg-base-200 px-3 py-1 font-mono text-sm tracking-tight text-base-content w-full sm:w-auto" data-start="${start}" data-end="${end}">
+                <span class="tabular-nums">${secondsToHms(start)}</span>
+              </span>
+            </dd>
+            <dt class="font-medium text-base-content">終了</dt>
+            <dd class="min-w-0">
+              <span class="play-clip inline-flex items-center justify-center rounded-lg bg-base-200 px-3 py-1 font-mono text-sm tracking-tight text-base-content w-full sm:w-auto" data-start="${start}" data-end="${end}">
+                <span class="tabular-nums">${secondsToHms(end)}</span>
+              </span>
+            </dd>
+          </dl>
+        </div>
+        <div class="drag-handle group/handle flex cursor-grab select-none items-center justify-end rounded-xl px-3 py-2 text-sm font-medium text-base-content/70 transition hover:bg-base-200 active:cursor-grabbing sm:h-full sm:min-h-[3.5rem]" role="button" tabindex="0" aria-label="ドラッグで並べ替え">
+          <span class="hidden text-xs uppercase tracking-wide text-base-content/50 sm:inline">ドラッグ</span>
+          <span aria-hidden="true" class="ml-2 text-base">⋮⋮</span>
+        </div>
       </div>
 
-      <div class="errors" aria-live="polite"></div>
-
-      <div class="row">
-        <button type="submit">保存</button>
-        <button type="button" class="cancel-edit">キャンセル</button>
+      <div class="mt-3 grid gap-2 sm:grid-cols-2">
+        <button class="play-clip start-clip btn btn-sm btn-primary w-full sm:w-auto" data-start="${start}" data-end="${end}" type="button">再生</button>
+        <button class="loop-btn btn btn-sm btn-outline w-full sm:w-auto" type="button">ループ</button>
+        <button class="edit-clip btn btn-sm btn-outline w-full sm:w-auto" type="button">編集</button>
+        <button class="delete-clip btn btn-sm btn-outline btn-error w-full sm:w-auto" type="button">削除</button>
       </div>
-    </form>
+
+      <form class="clip-edit-form mt-4 space-y-5 rounded-xl border border-base-200 bg-base-100 p-4 sm:p-5" hidden>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-base-content">タイトル</label>
+          <input name="clip[title]" value="" class="input input-bordered w-full" />
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-semibold text-base-content">開始</label>
+            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+              <input name="clip[start_time]" value="" class="input input-bordered w-full" />
+              <button type="button" class="btn btn-outline btn-sm h-10 min-h-0 use-current-start w-full sm:w-auto">▶ 今の位置</button>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-semibold text-base-content">終了</label>
+            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+              <input name="clip[end_time]" value="" class="input input-bordered w-full" />
+              <button type="button" class="btn btn-outline btn-sm h-10 min-h-0 use-current-end w-full sm:w-auto">▶ 今の位置</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="errors space-y-1 text-sm text-error" aria-live="polite"></div>
+
+        <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+          <button type="submit" class="btn btn-primary btn-sm w-full sm:w-auto">保存</button>
+          <button type="button" class="cancel-edit btn btn-ghost btn-sm w-full sm:w-auto">キャンセル</button>
+        </div>
+      </form>
     `;
     clipList.appendChild(newClip);
+    updateClipCount();
   }
 
   function resetForm() {
@@ -502,6 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       deleteLocalClip(clipElement.dataset.localClipId, videoId);
       clipElement.remove();
+      updateClipCount();
     }
   }
 
@@ -520,6 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
           activeClip = null;
         }
         clipElement.remove();
+        updateClipCount();
       })
       .catch(error => console.error("❌ クリップ削除エラー:", error));
   }
@@ -852,4 +895,5 @@ document.addEventListener("DOMContentLoaded", () => {
   favoriteButton?.addEventListener("click", toggleFavoriteButton);
 
   initClipSortable();
+  updateClipCount();
 });
