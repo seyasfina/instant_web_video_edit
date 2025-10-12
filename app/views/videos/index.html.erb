@@ -1,7 +1,6 @@
 <div class="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
   <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <span class="text-xs font-semibold uppercase tracking-wide text-base-content/50">Library</span>
       <h1 class="text-3xl font-bold text-base-content sm:text-4xl">動画一覧</h1>
       <p class="mt-2 text-sm text-base-content/70">最近取り込んだ動画から、お気に入りの素材まで。クリックして編集画面へ移動できます。</p>
     </div>
@@ -10,17 +9,16 @@
 
   <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
     <% @videos.each do |video| %>
-      <%= link_to video_path(video), class: "group flex flex-col overflow-hidden rounded-3xl border border-base-200/60 bg-base-100 shadow-lg transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl" do %>
+      <%= link_to video_path(video), class: "group flex flex-col overflow-hidden rounded-3xl border border-base-200/60 bg-base-100 shadow-lg transition hover:-translate-y-1 hover:border-primary/40" do %>
         <div class="relative aspect-video w-full overflow-hidden">
           <% if video.thumbnail_url.present? %>
             <%= image_tag video.thumbnail_url,
                           alt: "#{video.title.presence || 'サムネイルなし'}",
                           class: "h-full w-full object-cover transition duration-200 group-hover:scale-105" %>
           <% else %>
-            <div class="flex h-full w-full items-center justify-center bg-base-200 text-sm text-base-content/50">サムネイルなし</div>
+            <div class="flex h-full w-full items-center justify-center bg-base-200 text-3xl text-base-content/50 sm:text-4xl">No Image</div>
           <% end %>
-          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent"></div>
-          <span class="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
+          <span class="absolute right-4 top-4 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-9A2.25 2.25 0 002.25 5.25v13.5A2.25 2.25 0 004.5 21h9a2.25 2.25 0 002.25-2.25V15" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9l6 3-6 3" />
@@ -29,7 +27,7 @@
           </span>
         </div>
         <div class="flex flex-1 flex-col gap-2 px-5 py-4">
-          <h2 class="line-clamp-2 text-lg font-semibold text-base-content group-hover:text-primary"><%= video.title.presence || "タイトル未設定" %></h2>
+          <h2 class="line-clamp-2 text-lg font-semibold text-base-content group-hover:text-primary"><%= video.title.presence || "タイトル不明" %></h2>
           <div class="flex flex-wrap items-center gap-3 text-xs text-base-content/60">
             <% if video.created_at.present? %>
               <span class="inline-flex items-center gap-2 rounded-full bg-base-200/70 px-3 py-1">
