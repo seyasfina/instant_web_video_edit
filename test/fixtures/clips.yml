@@ -5,9 +5,11 @@ one:
   video: one
   start_time: 1.5
   end_time: 1.5
+  position: 1
 
 two:
   user: two
   video: two
   start_time: 1.5
   end_time: 1.5
+  position: 1

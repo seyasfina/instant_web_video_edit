@@ -370,17 +370,17 @@ document.addEventListener("DOMContentLoaded", () => {
           <label class="text-sm font-semibold text-base-content">タイトル</label>
           <input name="clip[title]" value="" class="input input-bordered w-full" />
         </div>
-        <div class="grid gap-4 sm:grid-cols-2">
+        <div class="grid gap-4 md:grid-cols-2 lg:flex lg:flex-col xl:grid xl:grid-cols-2 xl:gap-4">
           <div class="flex flex-col gap-2">
             <label class="text-sm font-semibold text-base-content">開始</label>
-            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3 lg:flex lg:flex-col">
               <input name="clip[start_time]" value="" class="input input-bordered w-full" />
               <button type="button" class="btn btn-outline btn-sm h-10 min-h-0 use-current-start w-full sm:w-auto">▶ 今の位置</button>
             </div>
           </div>
           <div class="flex flex-col gap-2">
             <label class="text-sm font-semibold text-base-content">終了</label>
-            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+            <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3 lg:flex lg:flex-col">
               <input name="clip[end_time]" value="" class="input input-bordered w-full" />
               <button type="button" class="btn btn-outline btn-sm h-10 min-h-0 use-current-end w-full sm:w-auto">▶ 今の位置</button>
             </div>
