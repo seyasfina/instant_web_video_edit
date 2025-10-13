@@ -1,17 +1,17 @@
 <% video_title = @video.title.presence || "動画情報を取得しています" %>
 
-<div class="video-container flex w-full flex-col gap-8 px-4 py-3 sm:px-6 lg:px-10 xl:px-14 2xl:px-16">
+<div class="flex w-full flex-col gap-8 px-4 py-3 sm:px-6 lg:px-10 xl:px-14 2xl:px-16">
   <header class="flex flex-col gap-2">
     <div class="flex min-w-0 flex-col gap-1.5">
       <span class="text-xs font-semibold uppercase tracking-wide text-base-content/60">Video</span>
-      <h1 class="truncate text-2xl font-bold text-base-content lg:text-3xl"><%= video_title %></h1>
+      <h1 class="text-2xl font-bold text-base-content lg:text-3xl"><%= video_title %></h1>
     </div>
     <% if @video.url.present? %>
       <%= link_to "YouTubeで開く", @video.url, target: "_blank", rel: "noopener", class: "btn btn-youtube w-full sm:w-fit" %>
     <% end %>
   </header>
 
-  <div class="grid grid-cols-1 gap-6 xl:gap-8 2xl:gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,1fr)]">
+  <div class="grid grid-cols-1 gap-6 xl:gap-8 2xl:gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,3fr)]">
     <section class="card border border-base-200 bg-base-100 shadow-lg">
       <div class="card-body gap-5 p-4 sm:p-6">
         <div class="aspect-video overflow-hidden bg-base-200">
@@ -30,7 +30,7 @@
                 </div>
               </div>
               <div class="flex flex-wrap items-center justify-start gap-3 lg:justify-end">
-                <div class="flex items-center gap-2 rounded-full bg-base-200/70 px-3 py-1 text-xs font-medium text-base-content/80 sm:text-sm whitespace-nowrap">
+                <div class="flex items-center gap-2 rounded-full bg-base-200/70 px-3 py-1 text-xs font-medium text-base-content/80 sm:text-sm">
                   <span>ヒント</span>
                   <span>再生できない時は再読み込みを試してください。</span>
                 </div>
