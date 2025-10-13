@@ -61,7 +61,7 @@ class ClipsControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(response.body)
     assert_equal 2, body["success_count"]
     assert_includes body.fetch("message", ""), "2個"
-    assert_equal ["Intro", "Outro"],
+    assert_equal [ "Intro", "Outro" ],
                  @video.clips.where(user: @user).order(:position).pluck(:title)
   end
 
