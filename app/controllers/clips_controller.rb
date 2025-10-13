@@ -80,7 +80,7 @@ class ClipsController < ApplicationController
   def set_clip
     @clip = @video.clips.where(user: current_user).find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    render json: { error: '指定されたクリップが見つからないか、アクセス権限がありません' }, status: :not_found
+    render json: { error: "指定されたクリップが見つからないか、アクセス権限がありません" }, status: :not_found
   end
 
   def clip_params

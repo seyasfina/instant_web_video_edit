@@ -19,7 +19,7 @@ class AddColumnToClips < ActiveRecord::Migration[7.2]
 
     change_column_null :clips, :position, false
 
-    add_index :clips, [:video_id, :user_id, :position],
+    add_index :clips, [ :video_id, :user_id, :position ],
               unique: true,
               name: "index_clips_on_vid_uid_position"
   end
