@@ -318,6 +318,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveClipToLocalStorage(clipData) {
     const storageKey = `clips_${videoId}`;
     let clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const startSec = clipData.start_time
+    const endSec   = clipData.end_time
+    const errs = [];
+    if (Number.isNaN(startSec) || Number.isNaN(endSec)) errs.push("時刻の形式が不正です（mm:ss または hh:mm:ss）");
+    if (startSec > endSec) errs.push("終了は開始より後である必要があります");
+
+    const errBox = document.getElementById("clip-errors");
+    errBox.innerHTML = errs.map(m => `<p>${m}</p>`).join("");
+    if (errs.length) return;
+
     clipData.local_id = clips.length > 0 ? (Math.max(...clips.map(c => parseInt(c.local_id))) + 1) : 1;
     clipData.position = String(clips.length);
     clips.push(clipData);
