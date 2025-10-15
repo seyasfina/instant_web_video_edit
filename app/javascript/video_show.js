@@ -265,18 +265,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function hmsToSeconds(hms) {
-    const parts = hms.split(":").map(parseFloat);
-    let seconds = 0;
+    const raw = (hms ?? '').trim();
+    if (raw === '') return Number.NaN;
 
-    if (parts.length === 3) {
-      const [h, m, s] = parts;
-      seconds = h * 3600 + m * 60 + s;
-    } else if (parts.length === 2) {
-      const [m, s] = parts;
-      seconds = m * 60 + s;
+    const parts = raw.split(':');
+    if (parts.length < 2 || parts.length > 3) return Number.NaN;
+
+    const numericParts = parts.map((segment, index) => {
+      if (segment === '') return Number.NaN;
+      if (index < parts.length - 1 && segment.includes('.')) return Number.NaN;
+
+      const value = Number(segment);
+      if (!Number.isFinite(value) || value < 0) return Number.NaN;
+
+      return value;
+    });
+
+    if (numericParts.some(Number.isNaN)) return Number.NaN;
+
+    if (numericParts.length === 3) {
+      const [h, m, s] = numericParts;
+      return h * 3600 + m * 60 + s;
     }
 
-    return seconds;
+    const [m, s] = numericParts;
+    return m * 60 + s;
   }
 
   function handleFormSubmit(event) {
@@ -286,6 +299,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const titleValue = clipForm.elements["clip[title]"].value;
     const startTimeToSeconds = hmsToSeconds(startTimeValue);
     const endTimeToSeconds = hmsToSeconds(endTimeValue);
+
+    const errors = [];
+    if (Number.isNaN(startTimeToSeconds) || Number.isNaN(endTimeToSeconds)) {
+      errors.push("時刻の形式が不正です（mm:ss または hh:mm:ss）");
+    }
+    if (!Number.isNaN(startTimeToSeconds) && !Number.isNaN(endTimeToSeconds) && startTimeToSeconds > endTimeToSeconds) {
+      errors.push("開始時間は終了時間より前に設定してください");
+    }
+
+    if (errors.length) {
+      displayErrors(errors);
+      return;
+    }
+
+    displayErrors([]);
 
     const clipData = {
       start_time: startTimeToSeconds,
@@ -304,9 +332,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       // Rails UJSの処理が終わった後に実行するため、setTimeoutを使用
       setTimeout(() => {
-        saveClipToLocalStorage(clipData);
-        renderLocalClip(clipData);
-        resetForm();
+        if (saveClipToLocalStorage(clipData)) {
+          renderLocalClip(clipData);
+          resetForm();
+        }
       }, 50);
     }
   }
@@ -318,10 +347,30 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveClipToLocalStorage(clipData) {
     const storageKey = `clips_${videoId}`;
     let clips = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const startSec = clipData.start_time;
+    const endSec = clipData.end_time;
+    const errs = [];
+
+    if (Number.isNaN(startSec) || Number.isNaN(endSec)) {
+      errs.push("時刻の形式が不正です（mm:ss または hh:mm:ss）");
+    }
+    if (!Number.isNaN(startSec) && !Number.isNaN(endSec) && startSec > endSec) {
+      errs.push("開始時間は終了時間より前に設定してください");
+    }
+
+    if (errs.length) {
+      displayErrors(errs);
+      return false;
+    }
+
+    displayErrors([]);
+
     clipData.local_id = clips.length > 0 ? (Math.max(...clips.map(c => parseInt(c.local_id))) + 1) : 1;
     clipData.position = String(clips.length);
     clips.push(clipData);
     localStorage.setItem(storageKey, JSON.stringify(clips));
+
+    return true;
   }
 
   function renderLocalClip(clipData) {

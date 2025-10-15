@@ -3,6 +3,7 @@ class Clip < ApplicationRecord
   belongs_to :video
 
   validates :start_time, :end_time, presence: true
+  validate :clip_times_must_be_numeric
   validate :starttime_must_be_before_endtime
 
   scope :ordered, -> { order(position: :asc, id: :asc) }
@@ -27,9 +28,23 @@ class Clip < ApplicationRecord
   private
 
   def starttime_must_be_before_endtime
+    return unless valid_time?(start_time) && valid_time?(end_time)
+
     if start_time > end_time
-      errors.add(:base, "開始時間は終了時間より前に設定してください。")
+      errors.add(:base, "開始時間は終了時間より前に設定してください")
     end
+  end
+
+  def clip_times_must_be_numeric
+    { start_time: start_time, end_time: end_time }.each do |attribute, value|
+      next if valid_time?(value)
+
+      errors.add(attribute, "には有効な数値を指定してください")
+    end
+  end
+
+  def valid_time?(value)
+    value.is_a?(Numeric) && value.finite?
   end
 
   def assign_tail_position
