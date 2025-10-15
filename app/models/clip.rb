@@ -31,7 +31,7 @@ class Clip < ApplicationRecord
     return unless valid_time?(start_time) && valid_time?(end_time)
 
     if start_time > end_time
-      errors.add(:base, "開始時間は終了時間より前に設定してください。")
+      errors.add(:base, "開始時間は終了時間より前に設定してください")
     end
   end
 
@@ -39,7 +39,7 @@ class Clip < ApplicationRecord
     { start_time: start_time, end_time: end_time }.each do |attribute, value|
       next if valid_time?(value)
 
-      errors.add(attribute, "には有効な数値を指定してください。")
+      errors.add(attribute, "には有効な数値を指定してください")
     end
   end
 
