@@ -617,15 +617,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleClipPlay(e) {
-    if (!e.target.classList.contains("play-clip")) return;
+    const playTarget = e.target.closest(".play-clip");
+    if (!playTarget) return;
 
-    const start = parseFloat(e.target.dataset.start);
-    const end = parseFloat(e.target.dataset.end);
+    const start = parseFloat(playTarget.dataset.start);
+    const end = parseFloat(playTarget.dataset.end);
     stopLoopWatcher();
-    const clipEl = e.target.closest("[data-clip-id]") || e.target.closest("[data-local-clip-id]");
+    const clipEl = playTarget.closest("[data-clip-id]") || playTarget.closest("[data-local-clip-id]");
     const clipId = clipEl?.dataset.clipId || clipEl?.dataset.localClipId;
     activeClip = { start, end, clipId };
-    if (e.target.classList.contains("start-clip")) {
+    if (playTarget.classList.contains("start-clip")) {
       ytPlayer.seekTo(start, true);
       ytPlayer.playVideo();
     } else {
